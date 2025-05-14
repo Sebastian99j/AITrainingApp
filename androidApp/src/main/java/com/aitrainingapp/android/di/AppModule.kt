@@ -2,6 +2,7 @@ package com.aitrainingapp.android.di
 
 import android.content.Context
 import androidx.room.Room
+import com.aitrainingapp.android.data.repository.ProgressionRepositoryImpl
 import com.aitrainingapp.android.data.repository.TrainingHistoryRepositoryImpl
 import com.aitrainingapp.android.data.repository.TrainingTypeRepositoryImpl
 import com.aitrainingapp.domain.repository.UserLocalRepository
@@ -11,6 +12,7 @@ import com.aitrainingapp.android.room.ProfileEntity
 import com.aitrainingapp.android.room.database.AppDatabase
 import com.aitrainingapp.data.remote.ApiConnection
 import com.aitrainingapp.data.repository.UserRepositoryImpl
+import com.aitrainingapp.domain.repository.ProgressionRepository
 import com.aitrainingapp.domain.repository.TrainingHistoryRepository
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserRepository
@@ -47,6 +49,7 @@ class AppModule(context: Context) {
     private val localUserRepository: UserLocalRepository = UserLocalRepositoryImpl(provideUserDao())
     private val trainingTypeRepository: TrainingTypeRepository = TrainingTypeRepositoryImpl(api)
     private val trainingHistoryRepository: TrainingHistoryRepository = TrainingHistoryRepositoryImpl(api)
+    private val progressionRepository: ProgressionRepository = ProgressionRepositoryImpl(api)
 
     fun provideLoginUseCase() = LoginUseCase(userRepository)
 
@@ -66,4 +69,6 @@ class AppModule(context: Context) {
     fun provideTrainingHistoryRepository() = trainingHistoryRepository
 
     fun provideLocalUserRepository() = localUserRepository
+
+    fun provideProgressionRepository() = progressionRepository
 }

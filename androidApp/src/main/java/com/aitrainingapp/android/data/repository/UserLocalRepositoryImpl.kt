@@ -17,4 +17,8 @@ class UserLocalRepositoryImpl(
     override suspend fun getUserById(): User? {
         return userDao.getFirstUser()?.toDomain()
     }
+
+    override suspend fun getUserId(): Int? {
+        return userDao.getFirstUser()?.toDomain()?.id
+    }
 }

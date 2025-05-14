@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.aitrainingapp.android.di.AppModule
+import com.aitrainingapp.android.ui.analysis.ProgressionAnalysisScreen
 import com.aitrainingapp.android.ui.dashboard.DashboardScreen
 import com.aitrainingapp.android.ui.login.LoginScreen
 import com.aitrainingapp.android.ui.profile.ProfileScreen
@@ -19,6 +20,7 @@ import com.aitrainingapp.android.ui.training_history.TrainingHistoryScreen
 import com.aitrainingapp.android.ui.training_types.TrainingTypeScreen
 import com.aitrainingapp.android.viewmodel.AndroidLoginViewModel
 import com.aitrainingapp.android.viewmodel.ProfileViewModel
+import com.aitrainingapp.android.viewmodel.ProgressionViewModel
 import com.aitrainingapp.android.viewmodel.TrainingHistoryViewModel
 import com.aitrainingapp.android.viewmodel.TrainingTypeViewModel
 import com.aitrainingapp.android.viewmodel.UserSettingsViewModel
@@ -29,6 +31,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var settingsViewModel: UserSettingsViewModel
     private lateinit var trainingHistoryViewModel: TrainingHistoryViewModel
+    private lateinit var progressionViewModel: ProgressionViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,6 +63,11 @@ class MainActivity : ComponentActivity() {
             appModule.provideLocalUserRepository()
         )
 
+        progressionViewModel = ProgressionViewModel(
+            appModule.provideProgressionRepository(),
+            appModule.provideLocalUserRepository()
+        )
+
         setContent {
             val navController = rememberNavController()
 
@@ -77,7 +85,8 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToTrainingTypes = { navController.navigate("trainingTypes") },
                                 onNavigateToProfile = { navController.navigate("profile") },
                                 onNavigateToSettings = { navController.navigate("settings") },
-                                onNavigateToHistory = { navController.navigate("trainingHistory") }
+                                onNavigateToHistory = { navController.navigate("trainingHistory") },
+                                onNavigateToProgressionAnalysis = { navController.navigate("progression") }
                             )
                         }
                         composable("trainingTypes") {
@@ -94,6 +103,9 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("trainingHistory") {
                             TrainingHistoryScreen(viewModel = trainingHistoryViewModel)
+                        }
+                        composable("progression") {
+                            ProgressionAnalysisScreen(viewModel = progressionViewModel)
                         }
                     }
                 }

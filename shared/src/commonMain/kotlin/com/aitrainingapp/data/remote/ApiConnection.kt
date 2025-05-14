@@ -1,5 +1,6 @@
 package com.aitrainingapp.data.remote
 
+import com.aitrainingapp.data.remote.model.RegressionTaskResult
 import com.aitrainingapp.data.remote.model.TrainingSeriesDto
 import com.aitrainingapp.data.remote.model.TrainingTypeDto
 import com.aitrainingapp.data.remote.model.UserDto
@@ -13,9 +14,13 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.delay
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
 class ApiConnection {
 
@@ -84,10 +89,50 @@ class ApiConnection {
             }
             HttpStatusCode.NotFound -> emptyList()
             else -> {
-                println("❌ Unexpected error: ${response.status}")
+                println("Unexpected error: ${response.status}")
                 emptyList()
             }
         }
+    }
+
+    suspend fun runPolynomialRegressionAndWait(userId: Int): List<Pair<String, Double>> {
+        val token = Cache.accessToken
+
+        // 1. Start async regression task
+        val taskStartResponse: JsonObject = client.post("http://10.0.2.2:8333/ai/polynomial_regression_async") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("user_id" to userId))
+            header("Authorization", "Bearer $token")
+        }.body()
+
+        val taskId = taskStartResponse["task_id"]?.jsonPrimitive?.content
+            ?: throw Exception("Brak task_id w odpowiedzi")
+
+        // 2. Poll /task_status/<id> until completed
+        repeat(30) {
+            delay(1000)
+
+            val statusResponse: HttpResponse = client.get("http://10.0.2.2:8333/ai/task_status/$taskId") {
+                header("Authorization", "Bearer $token")
+            }
+
+            if (statusResponse.status == HttpStatusCode.OK) {
+                val parsed = statusResponse.body<RegressionTaskResult>()
+
+                if (parsed.status == "completed") {
+                    val dates = parsed.result.dates
+                    val weights = parsed.result.weights
+
+                    if (dates.size != weights.size) throw Exception("Liczba dat ≠ liczba wag")
+
+                    return dates.zip(weights) // List<Pair<String, Double>>
+                }
+            } else if (statusResponse.status == HttpStatusCode.InternalServerError) {
+                throw Exception("Błąd serwera podczas pobierania statusu")
+            }
+        }
+
+        throw Exception("Timeout – analiza nie została ukończona w czasie")
     }
 
     suspend fun add(name: String): Boolean {
@@ -107,3 +152,9 @@ class ApiConnection {
 
 @Serializable
 data class LoginResponse(val access_token: String)
+
+@Serializable
+data class TaskResponse(val task_id: String)
+
+@Serializable
+data class TaskStatusResponse(val status: String, val result: List<Pair<String, Double>> = emptyList())
