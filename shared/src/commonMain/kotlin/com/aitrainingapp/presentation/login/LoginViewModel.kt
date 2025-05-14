@@ -13,7 +13,8 @@ import com.aitrainingapp.util.Result
 class LoginViewModel(
     private val loginUseCase: LoginUseCase,
     private val registerUseCase: RegisterUseCase,
-    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+    private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.Default),
+    private val onUserRegistered: ((User) -> Unit)? = null
 ) {
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state
@@ -37,17 +38,21 @@ class LoginViewModel(
             is LoginEvent.Register -> {
                 coroutineScope.launch {
                     _state.value = _state.value.copy(isLoading = true)
-
-                    when (val result: Result<User> = registerUseCase(event.username, event.password)) {
+                    when (val result = registerUseCase(event.username, event.password)) {
                         is Result.Success -> {
-                            _state.value = LoginState(success = true)
+                            when (val loginResult = loginUseCase(event.username, event.password)) {
+                                is Result.Success -> {
+                                    onUserRegistered?.invoke(loginResult.data)
+                                    _state.value = LoginState(success = true)
+                                }
+                                is Result.Failure -> _state.value = LoginState(error = loginResult.exception.message)
+                            }
                         }
-                        is Result.Failure -> {
-                            _state.value = LoginState(error = result.exception.message)
-                        }
+                        is Result.Failure -> _state.value = LoginState(error = result.exception.message)
                     }
                 }
             }
+
         }
     }
 }

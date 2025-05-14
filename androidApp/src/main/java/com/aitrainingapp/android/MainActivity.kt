@@ -27,8 +27,7 @@ class MainActivity : ComponentActivity() {
         loginViewModel = AndroidLoginViewModel(
             appModule.provideLoginUseCase(),
             appModule.provideRegisterUseCase(),
-            appModule.provideProfileDao(),
-            appModule.provideUserDao()
+            appModule.provideFetchAndStoreUserUseCase()
         )
 
         setContent {

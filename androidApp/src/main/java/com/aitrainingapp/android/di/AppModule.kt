@@ -2,6 +2,9 @@ package com.aitrainingapp.android.di
 
 import android.content.Context
 import androidx.room.Room
+import com.aitrainingapp.android.data.repository.UserLocalRepository
+import com.aitrainingapp.android.data.repository.implementation.UserLocalRepositoryImpl
+import com.aitrainingapp.android.domain.usecase.FetchAndStoreUserUseCase
 import com.aitrainingapp.android.room.database.AppDatabase
 import com.aitrainingapp.data.remote.AuthApi
 import com.aitrainingapp.data.repository.UserRepositoryImpl
@@ -18,11 +21,17 @@ class AppModule(context: Context) {
     ).build()
 
     private val api = AuthApi()
-    private val repo: UserRepository = UserRepositoryImpl(api)
+    private val userRepository: UserRepository = UserRepositoryImpl(api)
+    private val localUserRepository: UserLocalRepository = UserLocalRepositoryImpl(provideUserDao())
 
-    fun provideLoginUseCase() = LoginUseCase(repo)
+    fun provideLoginUseCase() = LoginUseCase(userRepository)
 
-    fun provideRegisterUseCase() = RegisterUseCase(repo)
+    fun provideRegisterUseCase() = RegisterUseCase(userRepository)
+
+    fun provideFetchAndStoreUserUseCase() = FetchAndStoreUserUseCase(
+        userRepository,
+        localUserRepository
+    )
 
     fun provideUserDao() = db.userDao()
 

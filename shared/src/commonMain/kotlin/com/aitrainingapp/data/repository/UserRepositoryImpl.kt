@@ -17,7 +17,7 @@ class UserRepositoryImpl(
             val user = User(
                 id = 0,
                 username = username,
-                aiIdentifier = loginResponse.access_token,
+                aiIdentifier = null,
                 profileId = null,
                 active = true,
                 notificationOn = false
@@ -41,7 +41,7 @@ class UserRepositoryImpl(
                 val user = User(
                     id = 0,
                     username = username,
-                    aiIdentifier = loginResponse.access_token,
+                    aiIdentifier = null,
                     profileId = null,
                     active = true,
                     notificationOn = false
@@ -54,6 +54,26 @@ class UserRepositoryImpl(
                 println("RegisterDebug: Status: ${registerResponse.status}, Body: ${registerResponse.bodyAsText()}")
                 Result.Failure(Exception("Register failed: ${registerResponse.status}"))
             }
+        } catch (e: Exception) {
+            Result.Failure(e)
+        }
+    }
+
+    override suspend fun fetchUserFromApi(username: String): Result<User> {
+        return try {
+            val userDto = api.getUser(username)
+
+            val user = User(
+                id = userDto.id,
+                username = userDto.username,
+                aiIdentifier = userDto.aiIdentifier,
+                profileId = null,
+                active = true,
+                notificationOn = false
+            )
+
+            Result.Success(user)
+
         } catch (e: Exception) {
             Result.Failure(e)
         }

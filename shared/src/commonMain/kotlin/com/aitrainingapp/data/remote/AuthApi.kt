@@ -1,5 +1,7 @@
 package com.aitrainingapp.data.remote
 
+import com.aitrainingapp.data.remote.model.UserDto
+import com.aitrainingapp.util.Cache
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -35,6 +37,20 @@ class AuthApi {
         return client.post("http://10.0.2.2:8333/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(mapOf("username" to username, "password" to password))
+        }.body()
+    }
+
+    suspend fun getUser(username: String): UserDto {
+        return client.post("http://10.0.2.2:8333/data/api/User") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("Username" to username))
+
+            val token = Cache.accessToken
+            if (!token.isNullOrBlank()) {
+                headers {
+                    append("Authorization", "Bearer $token")
+                }
+            }
         }.body()
     }
 }
