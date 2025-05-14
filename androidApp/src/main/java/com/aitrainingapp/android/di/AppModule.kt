@@ -2,15 +2,12 @@ package com.aitrainingapp.android.di
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.aitrainingapp.android.data.repository.TrainingTypeRepositoryImpl
 import com.aitrainingapp.domain.repository.UserLocalRepository
 import com.aitrainingapp.android.data.repository.UserLocalRepositoryImpl
 import com.aitrainingapp.android.domain.usecase.FetchAndStoreUserUseCase
 import com.aitrainingapp.android.room.ProfileEntity
 import com.aitrainingapp.android.room.database.AppDatabase
-import com.aitrainingapp.android.room.database.MIGRATION_1_2
 import com.aitrainingapp.data.remote.AuthApi
 import com.aitrainingapp.data.repository.UserRepositoryImpl
 import com.aitrainingapp.domain.repository.TrainingTypeRepository

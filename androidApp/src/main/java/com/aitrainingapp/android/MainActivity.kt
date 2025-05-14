@@ -12,13 +12,16 @@ import androidx.navigation.compose.rememberNavController
 import com.aitrainingapp.android.di.AppModule
 import com.aitrainingapp.android.ui.dashboard.DashboardScreen
 import com.aitrainingapp.android.ui.login.LoginScreen
+import com.aitrainingapp.android.ui.profilescreen.ProfileScreen
 import com.aitrainingapp.android.ui.trainingtypes.TrainingTypeScreen
 import com.aitrainingapp.android.viewmodel.AndroidLoginViewModel
+import com.aitrainingapp.android.viewmodel.ProfileViewModel
 import com.aitrainingapp.android.viewmodel.TrainingTypeViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var loginViewModel: AndroidLoginViewModel
     private lateinit var trainingTypeViewModel: TrainingTypeViewModel
+    private lateinit var profileViewModel: ProfileViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +39,11 @@ class MainActivity : ComponentActivity() {
             appModule.provideTrainingTypeRepository()
         )
 
+        val profileViewModel = ProfileViewModel(
+            appModule.provideProfileDao(),
+            appModule.provideUserDao()
+        )
+
         setContent {
             val navController = rememberNavController()
 
@@ -50,11 +58,15 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("dashboard") {
                             DashboardScreen(
-                                onNavigateToTrainingTypes = { navController.navigate("trainingTypes") }
+                                onNavigateToTrainingTypes = { navController.navigate("trainingTypes") },
+                                onNavigateToProfile = { navController.navigate("profile") }
                             )
                         }
                         composable("trainingTypes") {
                             TrainingTypeScreen(viewModel = trainingTypeViewModel)
+                        }
+                        composable("profile") {
+                            ProfileScreen(viewModel = profileViewModel)
                         }
                     }
                 }
