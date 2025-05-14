@@ -25,9 +25,7 @@ class LoginViewModel(
                     _state.value = _state.value.copy(isLoading = true)
                     when (val result: Result<User> = loginUseCase(event.username, event.password)) {
                         is Result.Success -> {
-                            val user = result.data
                             _state.value = LoginState(success = true)
-                            // TODO: zapisz user do Realm
                         }
                         is Result.Failure -> {
                             _state.value = LoginState(error = result.exception.message)

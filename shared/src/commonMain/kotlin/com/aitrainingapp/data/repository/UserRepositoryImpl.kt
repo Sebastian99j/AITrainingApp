@@ -27,7 +27,7 @@ class UserRepositoryImpl(
 
             Result.Success(user)
         } catch (e: Exception) {
-            Result.Failure(e)
+            Result.Failure(Exception("Niepoprawna nazwa użytkownika lub hasło"))
         }
     }
 

@@ -17,7 +17,10 @@ import com.aitrainingapp.android.viewmodel.AndroidLoginViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(viewModel: AndroidLoginViewModel) {
+fun LoginScreen(
+    viewModel: AndroidLoginViewModel,
+    onLoginSuccess: () -> Unit
+) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoginMode by remember { mutableStateOf(true) }
@@ -116,12 +119,15 @@ fun LoginScreen(viewModel: AndroidLoginViewModel) {
 
             state.error?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Error: $it", color = Color.Red)
+                Text(text = "Błąd logowania: $it", color = Color.Red)
             }
 
             if (state.success) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Login successful!", color = Color.Green)
+                LaunchedEffect(state.success) {
+                    if (state.success) {
+                        onLoginSuccess()
+                    }
+                }
             }
         }
     }

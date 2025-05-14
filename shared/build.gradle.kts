@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    kotlin("plugin.serialization") version "1.9.0" // ← DODAJ TO
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 kotlin {
@@ -56,7 +56,7 @@ android {
     }
 }
 dependencies {
-    implementation(libs.androidx.lifecycle.viewmodel.android)
+    //implementation(libs.androidx.lifecycle.viewmodel.android)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlinx.coroutines.core)
@@ -70,7 +70,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:2.3.4")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
-    implementation("io.ktor:ktor-client-cio:2.3.4") // lub inny engine
+    implementation("io.ktor:ktor-client-cio:2.3.4")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
     implementation("io.ktor:ktor-client-core:2.3.4")
     implementation("io.ktor:ktor-client-cio:2.3.4")

@@ -2,6 +2,8 @@ package com.aitrainingapp.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aitrainingapp.android.room.dao.ProfileDao
+import com.aitrainingapp.android.room.dao.UserDao
 import com.aitrainingapp.domain.usecase.LoginUseCase
 import com.aitrainingapp.domain.usecase.RegisterUseCase
 import com.aitrainingapp.presentation.login.LoginEvent
@@ -11,7 +13,9 @@ import kotlinx.coroutines.flow.StateFlow
 
 class AndroidLoginViewModel(
     loginUseCase: LoginUseCase,
-    registerUseCase: RegisterUseCase
+    registerUseCase: RegisterUseCase,
+    private val profileDao: ProfileDao,
+    private val userDao: UserDao
 ) : ViewModel() {
 
     private val delegate = LoginViewModel(
