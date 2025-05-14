@@ -1,7 +1,9 @@
 package com.aitrainingapp.data.remote
 
+import com.aitrainingapp.data.remote.model.TrainingSeriesDto
 import com.aitrainingapp.data.remote.model.TrainingTypeDto
 import com.aitrainingapp.data.remote.model.UserDto
+import com.aitrainingapp.domain.model.TrainingSeries
 import com.aitrainingapp.domain.model.TrainingType
 import com.aitrainingapp.util.Cache
 import io.ktor.client.*
@@ -12,9 +14,10 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 
-class AuthApi {
+class ApiConnection {
 
     private val client = HttpClient {
         install(ContentNegotiation) {
@@ -63,6 +66,28 @@ class AuthApi {
         }.body()
 
         return result.map { TrainingType(it.id, it.name) }
+    }
+
+    suspend fun getAllTrainingSeriesByUser(userId: Int): List<TrainingSeriesDto> {
+        val token = Cache.accessToken
+
+        val response: HttpResponse = client.post("http://10.0.2.2:8333/data/api/TrainingSeries/user") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("Id" to userId))
+            header("Authorization", "Bearer $token")
+        }
+
+        return when (response.status) {
+            HttpStatusCode.OK -> {
+                val jsonString = response.bodyAsText()
+                Json.decodeFromString(ListSerializer(TrainingSeriesDto.serializer()), jsonString)
+            }
+            HttpStatusCode.NotFound -> emptyList()
+            else -> {
+                println("❌ Unexpected error: ${response.status}")
+                emptyList()
+            }
+        }
     }
 
     suspend fun add(name: String): Boolean {

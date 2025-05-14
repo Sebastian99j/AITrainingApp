@@ -1,4 +1,4 @@
-package com.aitrainingapp.android.ui.trainingtypes
+package com.aitrainingapp.android.ui.training_types
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn

@@ -39,6 +39,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
                 implementation("io.ktor:ktor-client-json:2.3.4")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
             }
         }
     }
@@ -67,4 +68,5 @@ dependencies {
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
 }

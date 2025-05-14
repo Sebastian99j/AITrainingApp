@@ -2,10 +2,10 @@ package com.aitrainingapp.android.data.repository
 
 import com.aitrainingapp.domain.model.TrainingType
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
-import com.aitrainingapp.data.remote.AuthApi
+import com.aitrainingapp.data.remote.ApiConnection
 
 class TrainingTypeRepositoryImpl(
-    private val api: AuthApi
+    private val api: ApiConnection
 ) : TrainingTypeRepository {
 
     override suspend fun getAll(): List<TrainingType> {

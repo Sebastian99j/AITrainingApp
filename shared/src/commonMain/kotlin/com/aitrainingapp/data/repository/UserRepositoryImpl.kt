@@ -1,6 +1,6 @@
 package com.aitrainingapp.data.repository
 
-import com.aitrainingapp.data.remote.AuthApi
+import com.aitrainingapp.data.remote.ApiConnection
 import com.aitrainingapp.domain.model.User
 import com.aitrainingapp.domain.repository.UserRepository
 import com.aitrainingapp.util.Cache
@@ -8,7 +8,7 @@ import com.aitrainingapp.util.Result
 import io.ktor.client.statement.bodyAsText
 
 class UserRepositoryImpl(
-    private val api: AuthApi
+    private val api: ApiConnection
 ) : UserRepository {
     override suspend fun login(username: String, password: String): Result<User> {
         return try {

@@ -15,9 +15,11 @@ import com.aitrainingapp.android.ui.dashboard.DashboardScreen
 import com.aitrainingapp.android.ui.login.LoginScreen
 import com.aitrainingapp.android.ui.profile.ProfileScreen
 import com.aitrainingapp.android.ui.settings.SettingsScreen
-import com.aitrainingapp.android.ui.trainingtypes.TrainingTypeScreen
+import com.aitrainingapp.android.ui.training_history.TrainingHistoryScreen
+import com.aitrainingapp.android.ui.training_types.TrainingTypeScreen
 import com.aitrainingapp.android.viewmodel.AndroidLoginViewModel
 import com.aitrainingapp.android.viewmodel.ProfileViewModel
+import com.aitrainingapp.android.viewmodel.TrainingHistoryViewModel
 import com.aitrainingapp.android.viewmodel.TrainingTypeViewModel
 import com.aitrainingapp.android.viewmodel.UserSettingsViewModel
 
@@ -26,6 +28,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var trainingTypeViewModel: TrainingTypeViewModel
     private lateinit var profileViewModel: ProfileViewModel
     private lateinit var settingsViewModel: UserSettingsViewModel
+    private lateinit var trainingHistoryViewModel: TrainingHistoryViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +55,11 @@ class MainActivity : ComponentActivity() {
             appModule.provideUserDao()
         )
 
+        trainingHistoryViewModel = TrainingHistoryViewModel(
+            appModule.provideTrainingHistoryRepository(),
+            appModule.provideLocalUserRepository()
+        )
+
         setContent {
             val navController = rememberNavController()
 
@@ -68,7 +76,8 @@ class MainActivity : ComponentActivity() {
                             DashboardScreen(
                                 onNavigateToTrainingTypes = { navController.navigate("trainingTypes") },
                                 onNavigateToProfile = { navController.navigate("profile") },
-                                onNavigateToSettings = { navController.navigate("settings") }
+                                onNavigateToSettings = { navController.navigate("settings") },
+                                onNavigateToHistory = { navController.navigate("trainingHistory") }
                             )
                         }
                         composable("trainingTypes") {
@@ -82,6 +91,9 @@ class MainActivity : ComponentActivity() {
                                 currentUsername = settingsViewModel.username.collectAsState().value,
                                 onUsernameChange = { newName -> settingsViewModel.updateUsername(newName) }
                             )
+                        }
+                        composable("trainingHistory") {
+                            TrainingHistoryScreen(viewModel = trainingHistoryViewModel)
                         }
                     }
                 }

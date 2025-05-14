@@ -24,3 +24,14 @@ fun User.toEntity(): UserEntity {
         notificationOn = this.notificationOn
     )
 }
+
+fun UserEntity.toDomain(): User {
+    return User(
+        id = this.id,
+        username = this.username,
+        aiIdentifier = this.aiIdentifier,
+        profileId = this.profileId,
+        active = this.active,
+        notificationOn = this.notificationOn
+    )
+}

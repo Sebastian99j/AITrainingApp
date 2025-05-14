@@ -23,6 +23,7 @@ fun DashboardScreen(
     onNavigateToTrainingTypes: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToSettings: () -> Unit,
+    onNavigateToHistory: () -> Unit
 ) {
     val tiles = listOf("Lista ćwiczeń", "Historia treningów", "Profil użytkownika", "Rejestruj ćwiczenie",
         "Analiza progresji ciężaru", "Ustawienia")
@@ -66,6 +67,9 @@ fun DashboardScreen(
                                 }
                                 if (label == "Ustawienia") {
                                     onNavigateToSettings()
+                                }
+                                if (label == "Historia treningów") {
+                                    onNavigateToHistory()
                                 }
                             },
                         colors = CardDefaults.cardColors(containerColor = Color(0xBB1C1C1C)),

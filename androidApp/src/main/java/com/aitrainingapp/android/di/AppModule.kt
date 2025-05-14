@@ -2,15 +2,16 @@ package com.aitrainingapp.android.di
 
 import android.content.Context
 import androidx.room.Room
+import com.aitrainingapp.android.data.repository.TrainingHistoryRepositoryImpl
 import com.aitrainingapp.android.data.repository.TrainingTypeRepositoryImpl
 import com.aitrainingapp.domain.repository.UserLocalRepository
 import com.aitrainingapp.android.data.repository.UserLocalRepositoryImpl
 import com.aitrainingapp.android.domain.usecase.FetchAndStoreUserUseCase
 import com.aitrainingapp.android.room.ProfileEntity
 import com.aitrainingapp.android.room.database.AppDatabase
-import com.aitrainingapp.android.viewmodel.UserSettingsViewModel
-import com.aitrainingapp.data.remote.AuthApi
+import com.aitrainingapp.data.remote.ApiConnection
 import com.aitrainingapp.data.repository.UserRepositoryImpl
+import com.aitrainingapp.domain.repository.TrainingHistoryRepository
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserRepository
 import com.aitrainingapp.domain.usecase.LoginUseCase
@@ -41,10 +42,11 @@ class AppModule(context: Context) {
         }
     }
 
-    private val api = AuthApi()
+    private val api = ApiConnection()
     private val userRepository: UserRepository = UserRepositoryImpl(api)
     private val localUserRepository: UserLocalRepository = UserLocalRepositoryImpl(provideUserDao())
     private val trainingTypeRepository: TrainingTypeRepository = TrainingTypeRepositoryImpl(api)
+    private val trainingHistoryRepository: TrainingHistoryRepository = TrainingHistoryRepositoryImpl(api)
 
     fun provideLoginUseCase() = LoginUseCase(userRepository)
 
@@ -59,5 +61,9 @@ class AppModule(context: Context) {
 
     fun provideProfileDao() = db.profileDao()
 
-    fun provideTrainingTypeRepository() = trainingTypeRepository;
+    fun provideTrainingTypeRepository() = trainingTypeRepository
+
+    fun provideTrainingHistoryRepository() = trainingHistoryRepository
+
+    fun provideLocalUserRepository() = localUserRepository
 }
