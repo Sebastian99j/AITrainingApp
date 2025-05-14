@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appModule = AppModule(applicationContext)
+        appModule.insertDefaultProfilesIfNeeded()
 
         loginViewModel = AndroidLoginViewModel(
             appModule.provideLoginUseCase(),

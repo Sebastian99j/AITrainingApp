@@ -2,17 +2,24 @@ package com.aitrainingapp.android.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.aitrainingapp.android.data.repository.TrainingTypeRepositoryImpl
 import com.aitrainingapp.domain.repository.UserLocalRepository
 import com.aitrainingapp.android.data.repository.UserLocalRepositoryImpl
 import com.aitrainingapp.android.domain.usecase.FetchAndStoreUserUseCase
+import com.aitrainingapp.android.room.ProfileEntity
 import com.aitrainingapp.android.room.database.AppDatabase
+import com.aitrainingapp.android.room.database.MIGRATION_1_2
 import com.aitrainingapp.data.remote.AuthApi
 import com.aitrainingapp.data.repository.UserRepositoryImpl
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserRepository
 import com.aitrainingapp.domain.usecase.LoginUseCase
 import com.aitrainingapp.domain.usecase.RegisterUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppModule(context: Context) {
 
@@ -20,7 +27,21 @@ class AppModule(context: Context) {
         context.applicationContext,
         AppDatabase::class.java,
         "ai_training_db"
-    ).build()
+    )
+        .fallbackToDestructiveMigration()
+        .build()
+
+    fun insertDefaultProfilesIfNeeded() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val profileDao = db.profileDao()
+            val existing = profileDao.getAll()
+            if (existing.isEmpty()) {
+                profileDao.insert(ProfileEntity(name = "Początkujący", weightChance = 2.5f, repsChance = 1, setsChance = 1))
+                profileDao.insert(ProfileEntity(name = "Średniozaawansowany", weightChance = 1.5f, repsChance = 1, setsChance = 1))
+                profileDao.insert(ProfileEntity(name = "Zaawansowany", weightChance = 0.5f, repsChance = 1, setsChance = 1))
+            }
+        }
+    }
 
     private val api = AuthApi()
     private val userRepository: UserRepository = UserRepositoryImpl(api)
