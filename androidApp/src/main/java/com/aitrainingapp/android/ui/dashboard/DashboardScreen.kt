@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,8 +20,13 @@ import com.aitrainingapp.android.R
 
 @Composable
 fun DashboardScreen() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Background image
+    val tiles = listOf("Lista ćwiczeń", "Historia treningów", "Profil użytkownika", "Rejestruj ćwiczenie",
+        "Analiza progresji ciężaru", "Ustawienia")
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
         Image(
             painter = painterResource(R.drawable.gym_background),
             contentDescription = null,
@@ -28,35 +34,50 @@ fun DashboardScreen() {
             modifier = Modifier.matchParentSize()
         )
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
+        Box(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            val tiles = listOf("Trening", "Statystyki", "Profil", "Plan", "Historia", "Ustawienia")
-            items(tiles) { label ->
-                Card(
-                    modifier = Modifier
-                        .aspectRatio(1f) // kwadrat
-                        .fillMaxWidth()
-                        .clickable { /* TODO: handle click */ },
-                    colors = CardDefaults.cardColors(containerColor = Color(0xAA000000))
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 640.dp)
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(tiles) { label ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                            .clickable { /* TODO: handle click */ },
+                        colors = CardDefaults.cardColors(containerColor = Color(0xBB1C1C1C)),
+                        shape = RoundedCornerShape(20.dp),
+                        elevation = CardDefaults.cardElevation(6.dp)
                     ) {
-                        Text(
-                            text = label,
-                            fontSize = 20.sp,
-                            color = Color.White
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = label,
+                                fontSize = 18.sp,
+                                color = Color.White,
+                                lineHeight = 22.sp,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
         }
     }
 }
+
+

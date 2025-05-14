@@ -119,7 +119,17 @@ fun LoginScreen(
 
             state.error?.let {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Błąd logowania: $it", color = Color.Red)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Błąd logowania: $it",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
 
             if (state.success) {
