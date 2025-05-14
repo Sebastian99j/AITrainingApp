@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.sp
 import com.aitrainingapp.android.R
 
 @Composable
-fun DashboardScreen() {
+fun DashboardScreen(
+    onNavigateToTrainingTypes: () -> Unit
+) {
     val tiles = listOf("Lista ćwiczeń", "Historia treningów", "Profil użytkownika", "Rejestruj ćwiczenie",
         "Analiza progresji ciężaru", "Ustawienia")
 
@@ -53,7 +55,12 @@ fun DashboardScreen() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(1f)
-                            .clickable { /* TODO: handle click */ },
+                            .clickable {
+                                if (label == "Lista ćwiczeń") {
+                                    onNavigateToTrainingTypes()
+                                }
+
+                            },
                         colors = CardDefaults.cardColors(containerColor = Color(0xBB1C1C1C)),
                         shape = RoundedCornerShape(20.dp),
                         elevation = CardDefaults.cardElevation(6.dp)

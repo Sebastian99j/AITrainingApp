@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,10 +12,13 @@ import androidx.navigation.compose.rememberNavController
 import com.aitrainingapp.android.di.AppModule
 import com.aitrainingapp.android.ui.dashboard.DashboardScreen
 import com.aitrainingapp.android.ui.login.LoginScreen
+import com.aitrainingapp.android.ui.trainingtypes.TrainingTypeScreen
 import com.aitrainingapp.android.viewmodel.AndroidLoginViewModel
+import com.aitrainingapp.android.viewmodel.TrainingTypeViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var loginViewModel: AndroidLoginViewModel
+    private lateinit var trainingTypeViewModel: TrainingTypeViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,9 +31,12 @@ class MainActivity : ComponentActivity() {
             appModule.provideFetchAndStoreUserUseCase()
         )
 
+        trainingTypeViewModel = TrainingTypeViewModel(
+            appModule.provideTrainingTypeRepository()
+        )
+
         setContent {
             val navController = rememberNavController()
-            val loginSuccess = remember { mutableStateOf(false) }
 
             MyApplicationTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -44,7 +48,12 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable("dashboard") {
-                            DashboardScreen()
+                            DashboardScreen(
+                                onNavigateToTrainingTypes = { navController.navigate("trainingTypes") }
+                            )
+                        }
+                        composable("trainingTypes") {
+                            TrainingTypeScreen(viewModel = trainingTypeViewModel)
                         }
                     }
                 }

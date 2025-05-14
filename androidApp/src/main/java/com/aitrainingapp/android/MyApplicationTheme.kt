@@ -20,36 +20,27 @@ fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
+    val colorScheme = if (darkTheme) {
         darkColorScheme(
             primary = Color(0xFFBB86FC),
-            secondary = Color(0xFF03DAC5),
-            tertiary = Color(0xFF3700B3)
+            onPrimary = Color.Black,
+            background = Color(0xFF121212),
+            surface = Color(0xFF1E1E1E),
+            onSurface = Color.White,
         )
     } else {
         lightColorScheme(
             primary = Color(0xFF6200EE),
-            secondary = Color(0xFF03DAC5),
-            tertiary = Color(0xFF3700B3)
+            onPrimary = Color.White,
+            background = Color.White,
+            surface = Color.White,
+            onSurface = Color.Black
         )
     }
-    val typography = Typography(
-        bodyMedium = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp
-        )
-    )
-    val shapes = Shapes(
-        small = RoundedCornerShape(4.dp),
-        medium = RoundedCornerShape(4.dp),
-        large = RoundedCornerShape(0.dp)
-    )
 
     MaterialTheme(
-        colorScheme = colors,
-        typography = typography,
-        shapes = shapes,
+        colorScheme = colorScheme,
+        typography = Typography(),
         content = content
     )
 }

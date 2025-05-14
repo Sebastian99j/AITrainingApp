@@ -1,6 +1,6 @@
 package com.aitrainingapp.android.domain.usecase
 
-import com.aitrainingapp.android.data.repository.UserLocalRepository
+import com.aitrainingapp.domain.repository.UserLocalRepository
 import com.aitrainingapp.domain.model.User
 import com.aitrainingapp.domain.repository.UserRepository
 import com.aitrainingapp.util.Result

@@ -1,6 +1,8 @@
 package com.aitrainingapp.data.remote
 
+import com.aitrainingapp.data.remote.model.TrainingTypeDto
 import com.aitrainingapp.data.remote.model.UserDto
+import com.aitrainingapp.domain.model.TrainingType
 import com.aitrainingapp.util.Cache
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -52,6 +54,29 @@ class AuthApi {
                 }
             }
         }.body()
+    }
+
+    suspend fun getAll(): List<TrainingType> {
+        val token = Cache.accessToken
+        val result: List<TrainingTypeDto> = client.get("http://10.0.2.2:8333/data/api/TrainingType") {
+            header("Authorization", "Bearer $token")
+        }.body()
+
+        return result.map { TrainingType(it.id, it.name) }
+    }
+
+    suspend fun add(name: String): Boolean {
+        val token = Cache.accessToken
+        return try {
+            client.post("http://10.0.2.2:8333/data/api/TrainingType") {
+                header("Authorization", "Bearer $token")
+                contentType(ContentType.Application.Json)
+                setBody(mapOf("name" to name))
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 

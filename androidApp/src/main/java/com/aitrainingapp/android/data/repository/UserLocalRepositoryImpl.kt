@@ -1,9 +1,9 @@
-package com.aitrainingapp.android.data.repository.implementation
+package com.aitrainingapp.android.data.repository
 
-import com.aitrainingapp.android.data.repository.UserLocalRepository
 import com.aitrainingapp.android.room.dao.UserDao
 import com.aitrainingapp.android.room.toEntity
 import com.aitrainingapp.domain.model.User
+import com.aitrainingapp.domain.repository.UserLocalRepository
 
 class UserLocalRepositoryImpl(
     private val userDao: UserDao

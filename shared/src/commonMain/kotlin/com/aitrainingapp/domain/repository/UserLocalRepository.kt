@@ -1,4 +1,4 @@
-package com.aitrainingapp.android.data.repository
+package com.aitrainingapp.domain.repository
 
 import com.aitrainingapp.domain.model.User
 
