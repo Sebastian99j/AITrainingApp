@@ -8,6 +8,7 @@ import com.aitrainingapp.android.data.repository.UserLocalRepositoryImpl
 import com.aitrainingapp.android.domain.usecase.FetchAndStoreUserUseCase
 import com.aitrainingapp.android.room.ProfileEntity
 import com.aitrainingapp.android.room.database.AppDatabase
+import com.aitrainingapp.android.viewmodel.UserSettingsViewModel
 import com.aitrainingapp.data.remote.AuthApi
 import com.aitrainingapp.data.repository.UserRepositoryImpl
 import com.aitrainingapp.domain.repository.TrainingTypeRepository

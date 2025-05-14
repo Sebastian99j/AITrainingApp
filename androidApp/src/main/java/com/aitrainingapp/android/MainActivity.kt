@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,16 +13,19 @@ import androidx.navigation.compose.rememberNavController
 import com.aitrainingapp.android.di.AppModule
 import com.aitrainingapp.android.ui.dashboard.DashboardScreen
 import com.aitrainingapp.android.ui.login.LoginScreen
-import com.aitrainingapp.android.ui.profilescreen.ProfileScreen
+import com.aitrainingapp.android.ui.profile.ProfileScreen
+import com.aitrainingapp.android.ui.settings.SettingsScreen
 import com.aitrainingapp.android.ui.trainingtypes.TrainingTypeScreen
 import com.aitrainingapp.android.viewmodel.AndroidLoginViewModel
 import com.aitrainingapp.android.viewmodel.ProfileViewModel
 import com.aitrainingapp.android.viewmodel.TrainingTypeViewModel
+import com.aitrainingapp.android.viewmodel.UserSettingsViewModel
 
 class MainActivity : ComponentActivity() {
     private lateinit var loginViewModel: AndroidLoginViewModel
     private lateinit var trainingTypeViewModel: TrainingTypeViewModel
     private lateinit var profileViewModel: ProfileViewModel
+    private lateinit var settingsViewModel: UserSettingsViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,8 +43,12 @@ class MainActivity : ComponentActivity() {
             appModule.provideTrainingTypeRepository()
         )
 
-        val profileViewModel = ProfileViewModel(
+        profileViewModel = ProfileViewModel(
             appModule.provideProfileDao(),
+            appModule.provideUserDao()
+        )
+
+        settingsViewModel = UserSettingsViewModel(
             appModule.provideUserDao()
         )
 
@@ -59,7 +67,8 @@ class MainActivity : ComponentActivity() {
                         composable("dashboard") {
                             DashboardScreen(
                                 onNavigateToTrainingTypes = { navController.navigate("trainingTypes") },
-                                onNavigateToProfile = { navController.navigate("profile") }
+                                onNavigateToProfile = { navController.navigate("profile") },
+                                onNavigateToSettings = { navController.navigate("settings") }
                             )
                         }
                         composable("trainingTypes") {
@@ -67,6 +76,12 @@ class MainActivity : ComponentActivity() {
                         }
                         composable("profile") {
                             ProfileScreen(viewModel = profileViewModel)
+                        }
+                        composable("settings") {
+                            SettingsScreen(
+                                currentUsername = settingsViewModel.username.collectAsState().value,
+                                onUsernameChange = { newName -> settingsViewModel.updateUsername(newName) }
+                            )
                         }
                     }
                 }

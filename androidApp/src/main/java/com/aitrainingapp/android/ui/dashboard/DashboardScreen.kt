@@ -21,7 +21,8 @@ import com.aitrainingapp.android.R
 @Composable
 fun DashboardScreen(
     onNavigateToTrainingTypes: () -> Unit,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val tiles = listOf("Lista ćwiczeń", "Historia treningów", "Profil użytkownika", "Rejestruj ćwiczenie",
         "Analiza progresji ciężaru", "Ustawienia")
@@ -62,6 +63,9 @@ fun DashboardScreen(
                                 }
                                 if (label == "Profil użytkownika") {
                                     onNavigateToProfile()
+                                }
+                                if (label == "Ustawienia") {
+                                    onNavigateToSettings()
                                 }
                             },
                         colors = CardDefaults.cardColors(containerColor = Color(0xBB1C1C1C)),
