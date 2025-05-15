@@ -1,5 +1,6 @@
 package com.aitrainingapp.data.remote
 
+import com.aitrainingapp.data.remote.model.QLearningFeedbackDto
 import com.aitrainingapp.data.remote.model.RegressionTaskResult
 import com.aitrainingapp.data.remote.model.TrainingSeriesDto
 import com.aitrainingapp.data.remote.model.TrainingTypeDto
@@ -133,6 +134,70 @@ class ApiConnection {
         }
 
         throw Exception("Timeout – analiza nie została ukończona w czasie")
+    }
+
+    suspend fun runQLearningPredictionAndWait(userId: Int): String {
+        val token = Cache.accessToken
+
+        // 1. Start async Q-learning prediction task
+        val taskStartResponse: JsonObject = client.post("http://10.0.2.2:8333/ai/q_learning_predict_async") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("user_id" to userId))
+            header("Authorization", "Bearer $token")
+        }.body()
+
+        val taskId = taskStartResponse["task_id"]?.jsonPrimitive?.content
+            ?: throw Exception("Brak task_id w odpowiedzi")
+
+        // 2. Poll /task_status/<id> until completed
+        repeat(30) {
+            delay(1000)
+
+            val statusResponse: HttpResponse = client.get("http://10.0.2.2:8333/ai/task_status/$taskId") {
+                header("Authorization", "Bearer $token")
+            }
+
+            if (statusResponse.status == HttpStatusCode.OK) {
+                val responseJson = statusResponse.body<JsonObject>()
+                val status = responseJson["status"]?.jsonPrimitive?.content
+
+                if (status == "completed") {
+                    return responseJson["result"]?.jsonPrimitive?.content
+                        ?: throw Exception("Brak result w odpowiedzi zakończonego taska")
+                }
+            } else if (statusResponse.status == HttpStatusCode.InternalServerError) {
+                throw Exception("Błąd serwera podczas pobierania statusu predykcji")
+            }
+        }
+
+        throw Exception("Timeout – predykcja nie została ukończona w czasie")
+    }
+
+    suspend fun addTrainingSeries(series: TrainingSeriesDto): Boolean {
+        val token = Cache.accessToken
+        return try {
+            client.post("http://10.0.2.2:8333/data/api/TrainingSeries/new") {
+                contentType(ContentType.Application.Json)
+                header("Authorization", "Bearer $token")
+                setBody(series)
+            }
+            true
+        } catch (e: Exception) {
+            println("Błąd dodawania serii: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun sendQLearningFeedback(feedback: QLearningFeedbackDto): Boolean {
+        val token = Cache.accessToken
+
+        val response = client.post("http://10.0.2.2:8333/ai/q_learning_predict_feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(feedback)
+            header("Authorization", "Bearer $token")
+        }
+
+        return response.status == HttpStatusCode.OK
     }
 
     suspend fun add(name: String): Boolean {

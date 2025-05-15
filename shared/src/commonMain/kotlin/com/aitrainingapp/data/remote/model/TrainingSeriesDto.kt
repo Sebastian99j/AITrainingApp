@@ -7,13 +7,14 @@ import kotlinx.serialization.Serializable
 data class TrainingSeriesDto(
     val id: Int,
     val trainingType: String,
-    val weight: Double,
+    val weight: Float,
     val reps: Int,
     val sets: Int,
     val rpe: Int,
     val dateTime: String,
     val breaksInSeconds: Int,
-    val trained: Boolean
+    val trained: Boolean,
+    val userId: Int?
 )
 
 fun TrainingSeriesDto.toDomain(): TrainingSeries = TrainingSeries(
