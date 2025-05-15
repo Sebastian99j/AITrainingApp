@@ -75,7 +75,8 @@ class MainActivity : ComponentActivity() {
             appModule.provideExerciseRepository(),
             appModule.provideLocalUserRepository(),
             appModule.provideTrainingTypeRepository(),
-            appModule.provideTrainingHistoryRepository()
+            appModule.provideTrainingHistoryRepository(),
+            appModule.provideQLearningRepository()
         )
 
         setContent {

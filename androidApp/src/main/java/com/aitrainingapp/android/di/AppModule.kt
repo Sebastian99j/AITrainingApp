@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.aitrainingapp.android.data.repository.ExerciseRepositoryImpl
 import com.aitrainingapp.android.data.repository.ProfileRepositoryImpl
 import com.aitrainingapp.android.data.repository.ProgressionRepositoryImpl
+import com.aitrainingapp.android.data.repository.QLearningRepositoryImpl
 import com.aitrainingapp.android.data.repository.TrainingHistoryRepositoryImpl
 import com.aitrainingapp.android.data.repository.TrainingTypeRepositoryImpl
 import com.aitrainingapp.domain.repository.UserLocalRepository
@@ -17,6 +18,7 @@ import com.aitrainingapp.data.repository.UserRepositoryImpl
 import com.aitrainingapp.domain.repository.ExerciseRepository
 import com.aitrainingapp.domain.repository.ProfileRepository
 import com.aitrainingapp.domain.repository.ProgressionRepository
+import com.aitrainingapp.domain.repository.QLearningRepository
 import com.aitrainingapp.domain.repository.TrainingHistoryRepository
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserRepository
@@ -56,6 +58,7 @@ class AppModule(context: Context) {
     private val progressionRepository: ProgressionRepository = ProgressionRepositoryImpl(api)
     private val exerciseRepository: ExerciseRepository = ExerciseRepositoryImpl(api, localUserRepository)
     private val profileRepository: ProfileRepository = ProfileRepositoryImpl(provideProfileDao())
+    private val qLearningRepository: QLearningRepository = QLearningRepositoryImpl(api)
 
     fun provideLoginUseCase() = LoginUseCase(userRepository)
 
@@ -81,4 +84,6 @@ class AppModule(context: Context) {
     fun provideExerciseRepository() = exerciseRepository
 
     fun provideProfileRepository() = profileRepository
+
+    fun provideQLearningRepository() = qLearningRepository
 }

@@ -21,7 +21,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aitrainingapp.android.viewmodel.ExerciseViewModel
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -34,6 +33,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +45,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
     val elapsed by viewModel.elapsedSeconds.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     val plan by viewModel.nextTrainingPlan
+    val feedbackSent by viewModel.feedbackSent
 
     LaunchedEffect(Unit) {
         viewModel.loadData()
@@ -54,7 +56,14 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        val scrollState = rememberScrollState()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(scrollState)
+        ) {
             val recommendation by viewModel.recommendation
 
             Spacer(Modifier.height(8.dp))
@@ -94,6 +103,27 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                         color = Color.Black
                     )
                 }
+            }
+
+            if (!feedbackSent) {
+                Text("Czy rekomendacja się sprawdziła?", color = Color.White)
+
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = { viewModel.sendFeedback(successful = true) },
+                        modifier = Modifier.weight(1f).padding(end = 4.dp)
+                    ) {
+                        Text("✅ Tak")
+                    }
+                    Button(
+                        onClick = { viewModel.sendFeedback(successful = false) },
+                        modifier = Modifier.weight(1f).padding(start = 4.dp)
+                    ) {
+                        Text("❌ Nie")
+                    }
+                }
+            } else {
+                Text("✅ Feedback został zapisany", color = Color.Green)
             }
 
             Text("⏱️ Czas przerwy: ${if (isRunning) "$elapsed s" else "Zatrzymany"}", color = Color.White)
@@ -158,7 +188,6 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
 
             var weight by remember { mutableStateOf("") }
             var reps by remember { mutableStateOf("") }
-            var sets by remember { mutableStateOf("") }
             var rpe by remember { mutableStateOf("") }
 
             Spacer(Modifier.height(8.dp))
@@ -200,9 +229,10 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = sets,
-                    onValueChange = { sets = it },
+                    value = "1",
+                    onValueChange = {},
                     label = { Text("Serie", color = Color.White) },
+                    readOnly = true,
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 4.dp),
@@ -234,12 +264,13 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
             Button(
                 onClick = {
                     viewModel.addSeries(
+                        exercise = exerciseName,
                         weight = weight.toFloatOrNull() ?: 0f,
                         reps = reps.toIntOrNull() ?: 0,
-                        sets = sets.toIntOrNull() ?: 0,
+                        sets = 1,
                         rpe = rpe.toIntOrNull() ?: 0
                     )
-                    weight = ""; reps = ""; sets = ""; rpe = ""
+                    weight = ""; reps = ""; rpe = ""
                 }
             ) {
                 Text("➕ Dodaj serię")
@@ -247,10 +278,8 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
 
             Spacer(Modifier.height(16.dp))
 
-            LazyColumn {
-                items(series) { s ->
-                    Text("🔹 ${s.weight}kg × ${s.reps} × ${s.sets}, ${s.rpe} RPE, ${s.durationSeconds}s", color = Color.White)
-                }
+            series.forEach { s ->
+                Text("🔹 ${s.weight}kg × ${s.reps} × ${s.sets}, ${s.rpe} RPE, ${s.durationSeconds}s", color = Color.White)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -260,17 +289,45 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White
             )
-            Text("Łącznie powtórzeń: ${viewModel.totalReps()}", color = Color.White)
-            Text("Łącznie serii: ${viewModel.totalSets()}", color = Color.White)
-            Text("Łączny ciężar: ${viewModel.totalWeight()} kg", color = Color.White)
-            Text("Średni czas serii: ${viewModel.averageDuration()} s", color = Color.White)
+
+            Spacer(Modifier.height(8.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "🔁 Powtórzenia: ${viewModel.totalReps()}",
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    "📦 Serie: ${viewModel.totalSets()}",
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "🏋️ Ciężar: ${viewModel.totalWeight()} kg",
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    "⏱️ Śr. czas serii: ${viewModel.averageDuration()} s",
+                    color = Color.White,
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             Spacer(Modifier.height(8.dp))
 
             Button(onClick = {
-                if (exerciseName.isNotBlank()) {
-                    viewModel.saveAll(exerciseName)
-                }
+                viewModel.saveAll()
+                exerciseName = ""
+                weight = ""
+                reps = ""
+                rpe = ""
             }) {
                 Text("💾 Zapisz wszystkie")
             }

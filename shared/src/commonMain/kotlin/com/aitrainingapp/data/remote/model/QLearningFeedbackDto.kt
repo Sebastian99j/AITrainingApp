@@ -8,7 +8,7 @@ data class QLearningFeedbackDto(
     val type: String,
     val action: String,
     val successful: Boolean,
-    val weight: Int,
+    val weight: Float,
     val reps: Int,
     val sets: Int,
     val RPE: Int,

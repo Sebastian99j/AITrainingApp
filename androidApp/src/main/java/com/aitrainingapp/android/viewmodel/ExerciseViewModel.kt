@@ -4,10 +4,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aitrainingapp.data.remote.model.QLearningFeedbackDto
 import com.aitrainingapp.domain.model.ExerciseSeries
 import com.aitrainingapp.domain.model.Profile
 import com.aitrainingapp.domain.repository.ExerciseRepository
-import com.aitrainingapp.domain.repository.ProfileRepository
+import com.aitrainingapp.domain.repository.QLearningRepository
 import com.aitrainingapp.domain.repository.TrainingHistoryRepository
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserLocalRepository
@@ -23,7 +24,8 @@ class ExerciseViewModel(
     private val repository: ExerciseRepository,
     private val localUserRepository: UserLocalRepository,
     private val trainingTypeRepository: TrainingTypeRepository,
-    private val trainingHistoryRepository: TrainingHistoryRepository
+    private val trainingHistoryRepository: TrainingHistoryRepository,
+    private val qLearningRepository: QLearningRepository
 ) : ViewModel() {
 
     private val _seriesList = MutableStateFlow<List<ExerciseSeries>>(emptyList())
@@ -41,9 +43,13 @@ class ExerciseViewModel(
     private val _nextTrainingPlan = mutableStateOf<String?>(null)
     val nextTrainingPlan: State<String?> = _nextTrainingPlan
 
+    private val _feedbackSent = mutableStateOf(false)
+    val feedbackSent: State<Boolean> = _feedbackSent
+
     private var _lastDuration: Int = 0
     private var _startTime: Long = 0
     private var timerJob: Job? = null
+    private var lastRawRecommendation: String? = null
 
     private val _timerRunning = mutableStateOf(false)
     val timerRunning: State<Boolean> = _timerRunning
@@ -83,6 +89,8 @@ class ExerciseViewModel(
                 return@launch
             }
 
+            lastRawRecommendation = raw
+
             _recommendation.value = mapRecommendation(raw, profile)
 
             val lastTraining = trainingHistoryRepository.getTrainingHistory(userId).lastOrNull()
@@ -111,9 +119,44 @@ class ExerciseViewModel(
         }
     }
 
-    fun addSeries(weight: Float, reps: Int, sets: Int, rpe: Int) {
+    fun sendFeedback(successful: Boolean) {
+        if (_feedbackSent.value) return
+
+        viewModelScope.launch {
+            val user = localUserRepository.getUserById() ?: return@launch
+            val history = trainingHistoryRepository.getTrainingHistory(user.id)
+            val last = history.lastOrNull() ?: return@launch
+
+            val feedback = QLearningFeedbackDto(
+                user_id = user.id,
+                type = "Bench press",
+                action = lastRawRecommendation ?: "unknown",
+                successful = successful,
+                weight = last.weight,
+                reps = last.reps,
+                sets = last.sets,
+                RPE = last.rpe,
+                training_goal = "hypertrophy"
+            )
+
+            val result = qLearningRepository.sendFeedback(feedback)
+            if (result) {
+                _feedbackSent.value = true
+            }
+        }
+    }
+
+    fun addSeries(exercise: String, weight: Float, reps: Int, sets: Int, rpe: Int) {
         val now = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        val new = ExerciseSeries(weight, reps, sets, rpe, _lastDuration, now)
+        val new = ExerciseSeries(
+            weight = weight,
+            reps = reps,
+            sets = sets,
+            rpe = rpe,
+            durationSeconds = _lastDuration,
+            date = now,
+            exercise = exercise
+        )
         _seriesList.value = _seriesList.value + new
     }
 
@@ -124,13 +167,37 @@ class ExerciseViewModel(
         if (_seriesList.value.isNotEmpty()) _seriesList.value.sumOf { it.durationSeconds } / _seriesList.value.size
         else 0
 
-    fun saveAll(exercise: String) {
+    fun saveAll() {
         viewModelScope.launch {
             val userId = localUserRepository.getUserId() ?: return@launch
 
-            _seriesList.value.forEach {
-                repository.saveSeries(it.copy(userId = userId, exercise = exercise), exercise)
+            val grouped = _seriesList.value
+                .groupBy { it.weight }
+                .map { (weight, group) ->
+                    val avgReps = group.map { it.reps }.average().toInt()
+                    val totalSets = group.sumOf { it.sets }
+                    val avgRpe = group.map { it.rpe }.average().toInt()
+                    val avgDuration = group.map { it.durationSeconds }.average().toInt()
+                    val date = group.first().date
+                    val exercise = group.first().exercise
+
+                    ExerciseSeries(
+                        userId = userId,
+                        weight = weight,
+                        reps = avgReps,
+                        sets = totalSets,
+                        rpe = avgRpe,
+                        durationSeconds = avgDuration,
+                        date = date,
+                        exercise = exercise
+                    )
+                }
+
+            grouped.forEach { series ->
+                repository.saveSeries(series)
             }
+
+            _seriesList.value = emptyList()
         }
     }
 

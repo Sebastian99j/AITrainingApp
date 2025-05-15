@@ -11,12 +11,12 @@ class ExerciseRepositoryImpl(
     private val userRepo: UserLocalRepository
 ) : ExerciseRepository {
 
-    override suspend fun saveSeries(series: ExerciseSeries, exercise: String): Boolean {
+    override suspend fun saveSeries(series: ExerciseSeries): Boolean {
         val userId = userRepo.getUserId() ?: return false
 
         val dto = TrainingSeriesDto(
             id = 0,
-            trainingType = exercise,
+            trainingType = series.exercise ?: "",
             userId = userId,
             weight = series.weight,
             reps = series.reps,
