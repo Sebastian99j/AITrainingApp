@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.aitrainingapp.android.viewmodel.TrainingTypeViewModel
 
@@ -22,7 +23,7 @@ fun TrainingTypeScreen(viewModel: TrainingTypeViewModel) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = Color.Black
     ) {
         Column(
             modifier = Modifier
@@ -38,7 +39,7 @@ fun TrainingTypeScreen(viewModel: TrainingTypeViewModel) {
                 Text(
                     text = "Typy ćwiczeń",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.White,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 

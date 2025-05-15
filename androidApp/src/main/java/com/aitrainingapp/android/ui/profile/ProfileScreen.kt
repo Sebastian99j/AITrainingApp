@@ -31,7 +31,6 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
     var expanded by remember { mutableStateOf(false) }
     var selectedProfile by remember { mutableStateOf<ProfileEntity?>(null) }
 
-    // Domyślny wybór po załadowaniu
     LaunchedEffect(profiles, selectedId) {
         if (selectedProfile == null && profiles.isNotEmpty()) {
             selectedProfile = profiles.find { it.id == selectedId } ?: profiles.first()

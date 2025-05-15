@@ -3,6 +3,7 @@ package com.aitrainingapp.android.ui.exercise
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,6 +30,10 @@ import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,158 +41,219 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
     val isRunning by viewModel.timerRunning
     val series by viewModel.seriesList.collectAsState()
     val exercises by viewModel.exercises.collectAsState()
+    val elapsed by viewModel.elapsedSeconds.collectAsState()
     var expanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.loadData()
+        viewModel.fetchRecommendation()
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text("⏱️ Czas serii: ${if (isRunning) "Trwa..." else "Zatrzymany"}")
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Black
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            val recommendation by viewModel.recommendation
 
-        Button(onClick = { viewModel.toggleTimer() }) {
-            Text(if (isRunning) "Stop" else "Start")
-        }
-
-        Spacer(Modifier.height(8.dp))
-
-        var exerciseName by remember { mutableStateOf("") }
-
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
-            OutlinedTextField(
-                value = exerciseName,
-                onValueChange = { exerciseName = it },
-                readOnly = true,
-                label = { Text("Nazwa ćwiczenia") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedBorderColor = Color.Gray,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedTextColor = Color.Black,
-                    focusedTextColor = Color.Black,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = Color.Gray,
-                    cursorColor = MaterialTheme.colorScheme.primary
-                )
-            )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.exposedDropdownSize()
-            ) {
-                exercises.forEach { exercise ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                exercise,
-                                color = Color.Black
-                            )
-                        },
-                        onClick = {
-                            exerciseName = exercise
-                            expanded = false
-                        },
-                        colors = MenuDefaults.itemColors(
-                            textColor = Color.Black,
-                            disabledTextColor = Color.Gray
-                        )
+            Spacer(Modifier.height(8.dp))
+            recommendation?.let {
+                androidx.compose.material3.Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    color = Color(0xFFFFF4E1),
+                    shadowElevation = 4.dp,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "📈 Rekomendacja: $it",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
                     )
                 }
             }
-        }
 
-        var weight by remember { mutableStateOf("") }
-        var reps by remember { mutableStateOf("") }
-        var sets by remember { mutableStateOf("") }
-        var rpe by remember { mutableStateOf("") }
+            Text("⏱️ Czas przerwy: ${if (isRunning) "$elapsed s" else "Zatrzymany"}", color = Color.White)
 
-        Spacer(Modifier.height(8.dp))
+            Button(onClick = { viewModel.toggleTimer() }) {
+                Text(if (isRunning) "Stop" else "Start")
+            }
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = weight,
-                onValueChange = { weight = it },
-                label = { Text("Waga (kg)") },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp)
-            )
-            OutlinedTextField(
-                value = reps,
-                onValueChange = { reps = it },
-                label = { Text("Powtórzenia") },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp)
-            )
-        }
+            Spacer(Modifier.height(8.dp))
 
-        Spacer(Modifier.height(8.dp))
+            var exerciseName by remember { mutableStateOf("") }
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = sets,
-                onValueChange = { sets = it },
-                label = { Text("Serie") },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 4.dp)
-            )
-            OutlinedTextField(
-                value = rpe,
-                onValueChange = { rpe = it },
-                label = { Text("RPE") },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 4.dp)
-            )
-        }
-
-        Button(
-            onClick = {
-                viewModel.addSeries(
-                    weight = weight.toFloatOrNull() ?: 0f,
-                    reps = reps.toIntOrNull() ?: 0,
-                    sets = sets.toIntOrNull() ?: 0,
-                    rpe = rpe.toIntOrNull() ?: 0
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = exerciseName,
+                    onValueChange = { exerciseName = it },
+                    readOnly = true,
+                    label = { Text("Nazwa ćwiczenia") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Gray,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = Color.White,
+                        focusedTextColor = Color.White,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = Color.Gray,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
                 )
-                weight = ""; reps = ""; sets = ""; rpe = ""
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.exposedDropdownSize()
+                ) {
+                    exercises.forEach { exercise ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    exercise,
+                                    color = Color.Black
+                                )
+                            },
+                            onClick = {
+                                exerciseName = exercise
+                                expanded = false
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = Color.Black,
+                                disabledTextColor = Color.Gray
+                            )
+                        )
+                    }
+                }
             }
-        ) {
-            Text("➕ Dodaj serię")
-        }
 
-        Spacer(Modifier.height(16.dp))
+            var weight by remember { mutableStateOf("") }
+            var reps by remember { mutableStateOf("") }
+            var sets by remember { mutableStateOf("") }
+            var rpe by remember { mutableStateOf("") }
 
-        LazyColumn {
-            items(series) { s ->
-                Text("🔹 ${s.weight}kg × ${s.reps} × ${s.sets}, ${s.rpe} RPE, ${s.durationSeconds}s")
+            Spacer(Modifier.height(8.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = weight,
+                    onValueChange = { weight = it },
+                    label = { Text("Waga (kg)", color = Color.White) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+                OutlinedTextField(
+                    value = reps,
+                    onValueChange = { reps = it },
+                    label = { Text("Powtórzenia", color = Color.White) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
             }
-        }
 
-        Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(8.dp))
 
-        Text("📊 Podsumowanie", style = MaterialTheme.typography.titleMedium)
-        Text("Łącznie powtórzeń: ${viewModel.totalReps()}")
-        Text("Łącznie serii: ${viewModel.totalSets()}")
-        Text("Łączny ciężar: ${viewModel.totalWeight()} kg")
-        Text("Średni czas serii: ${viewModel.averageDuration()} s")
-
-        Spacer(Modifier.height(8.dp))
-
-        Button(onClick = {
-            if (exerciseName.isNotBlank()) {
-                viewModel.saveAll(exerciseName)
+            Row(modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = sets,
+                    onValueChange = { sets = it },
+                    label = { Text("Serie", color = Color.White) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 4.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+                OutlinedTextField(
+                    value = rpe,
+                    onValueChange = { rpe = it },
+                    label = { Text("RPE", color = Color.White) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 4.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
             }
-        }) {
-            Text("💾 Zapisz wszystkie")
+
+            Button(
+                onClick = {
+                    viewModel.addSeries(
+                        weight = weight.toFloatOrNull() ?: 0f,
+                        reps = reps.toIntOrNull() ?: 0,
+                        sets = sets.toIntOrNull() ?: 0,
+                        rpe = rpe.toIntOrNull() ?: 0
+                    )
+                    weight = ""; reps = ""; sets = ""; rpe = ""
+                }
+            ) {
+                Text("➕ Dodaj serię")
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            LazyColumn {
+                items(series) { s ->
+                    Text("🔹 ${s.weight}kg × ${s.reps} × ${s.sets}, ${s.rpe} RPE, ${s.durationSeconds}s", color = Color.White)
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                "📊 Podsumowanie",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White
+            )
+            Text("Łącznie powtórzeń: ${viewModel.totalReps()}", color = Color.White)
+            Text("Łącznie serii: ${viewModel.totalSets()}", color = Color.White)
+            Text("Łączny ciężar: ${viewModel.totalWeight()} kg", color = Color.White)
+            Text("Średni czas serii: ${viewModel.averageDuration()} s", color = Color.White)
+
+            Spacer(Modifier.height(8.dp))
+
+            Button(onClick = {
+                if (exerciseName.isNotBlank()) {
+                    viewModel.saveAll(exerciseName)
+                }
+            }) {
+                Text("💾 Zapisz wszystkie")
+            }
         }
     }
 }

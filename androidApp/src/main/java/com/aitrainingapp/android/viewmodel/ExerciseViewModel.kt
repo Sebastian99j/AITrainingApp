@@ -8,6 +8,8 @@ import com.aitrainingapp.domain.model.ExerciseSeries
 import com.aitrainingapp.domain.repository.ExerciseRepository
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserLocalRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -26,8 +28,15 @@ class ExerciseViewModel(
     private val _exercises = MutableStateFlow<List<String>>(emptyList())
     val exercises: StateFlow<List<String>> = _exercises
 
+    private val _recommendation = mutableStateOf<String?>(null)
+    val recommendation: State<String?> = _recommendation
+
+    private val _elapsedSeconds = MutableStateFlow(0)
+    val elapsedSeconds: StateFlow<Int> = _elapsedSeconds
+
     private var _lastDuration: Int = 0
     private var _startTime: Long = 0
+    private var timerJob: Job? = null
 
     fun setDuration(seconds: Int) {
         _lastDuration = seconds
@@ -36,18 +45,37 @@ class ExerciseViewModel(
     private val _timerRunning = mutableStateOf(false)
     val timerRunning: State<Boolean> = _timerRunning
 
+    fun toggleTimer() {
+        _timerRunning.value = !_timerRunning.value
+        if (_timerRunning.value) {
+            _startTime = System.currentTimeMillis()
+            timerJob = viewModelScope.launch {
+                while (true) {
+                    _elapsedSeconds.value = ((System.currentTimeMillis() - _startTime) / 1000).toInt()
+                    delay(1000)
+                }
+            }
+        } else {
+            timerJob?.cancel()
+            _lastDuration = _elapsedSeconds.value
+            _elapsedSeconds.value = 0
+        }
+    }
+
     fun loadData(){
         viewModelScope.launch {
             _exercises.value = trainingTypeRepository.getAll().map { x -> x.name }
         }
     }
 
-    fun toggleTimer() {
-        _timerRunning.value = !_timerRunning.value
-        if (_timerRunning.value) {
-            _startTime = System.currentTimeMillis()
-        } else {
-            _lastDuration = ((System.currentTimeMillis() - _startTime) / 1000).toInt()
+    fun fetchRecommendation() {
+        viewModelScope.launch {
+            val userId = localUserRepository.getUserId() ?: return@launch
+            try {
+                _recommendation.value = repository.getQLearningRecommendation(userId)
+            } catch (e: Exception) {
+                _recommendation.value = "Błąd: ${e.message}"
+            }
         }
     }
 

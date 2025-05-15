@@ -29,4 +29,8 @@ class ExerciseRepositoryImpl(
 
         return api.addTrainingSeries(dto)
     }
+
+    override suspend fun getQLearningRecommendation(userId: Int): String {
+        return api.runQLearningPredictionAndWait(userId)
+    }
 }
