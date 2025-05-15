@@ -1,7 +1,9 @@
 package com.aitrainingapp.android.ui.exercise
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,11 +21,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.aitrainingapp.android.viewmodel.ExerciseViewModel
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Color
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
     val isRunning by viewModel.timerRunning
     val series by viewModel.seriesList.collectAsState()
+    val exercises by viewModel.exercises.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadData()
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text("⏱️ Czas serii: ${if (isRunning) "Trwa..." else "Zatrzymany"}")
@@ -34,24 +51,104 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
 
         Spacer(Modifier.height(8.dp))
 
-        // Pole na nazwę ćwiczenia
         var exerciseName by remember { mutableStateOf("") }
-        OutlinedTextField(
-            value = exerciseName,
-            onValueChange = { exerciseName = it },
-            label = { Text("Nazwa ćwiczenia") }
-        )
 
-        // Wprowadzenie danych serii
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded }
+        ) {
+            OutlinedTextField(
+                value = exerciseName,
+                onValueChange = { exerciseName = it },
+                readOnly = true,
+                label = { Text("Nazwa ćwiczenia") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = Color.Gray,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedTextColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = Color.Gray,
+                    cursorColor = MaterialTheme.colorScheme.primary
+                )
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.exposedDropdownSize()
+            ) {
+                exercises.forEach { exercise ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                exercise,
+                                color = Color.Black
+                            )
+                        },
+                        onClick = {
+                            exerciseName = exercise
+                            expanded = false
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = Color.Black,
+                            disabledTextColor = Color.Gray
+                        )
+                    )
+                }
+            }
+        }
+
         var weight by remember { mutableStateOf("") }
         var reps by remember { mutableStateOf("") }
         var sets by remember { mutableStateOf("") }
         var rpe by remember { mutableStateOf("") }
 
-        OutlinedTextField(weight, { weight = it }, label = { Text("Waga (kg)") })
-        OutlinedTextField(reps, { reps = it }, label = { Text("Powtórzenia") })
-        OutlinedTextField(sets, { sets = it }, label = { Text("Serie") })
-        OutlinedTextField(rpe, { rpe = it }, label = { Text("RPE") })
+        Spacer(Modifier.height(8.dp))
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = weight,
+                onValueChange = { weight = it },
+                label = { Text("Waga (kg)") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp)
+            )
+            OutlinedTextField(
+                value = reps,
+                onValueChange = { reps = it },
+                label = { Text("Powtórzenia") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        Row(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = sets,
+                onValueChange = { sets = it },
+                label = { Text("Serie") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 4.dp)
+            )
+            OutlinedTextField(
+                value = rpe,
+                onValueChange = { rpe = it },
+                label = { Text("RPE") },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 4.dp)
+            )
+        }
 
         Button(
             onClick = {

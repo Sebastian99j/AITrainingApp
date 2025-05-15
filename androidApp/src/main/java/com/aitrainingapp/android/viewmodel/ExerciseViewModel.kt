@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aitrainingapp.domain.model.ExerciseSeries
 import com.aitrainingapp.domain.repository.ExerciseRepository
+import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserLocalRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +16,15 @@ import java.time.format.DateTimeFormatter
 
 class ExerciseViewModel(
     private val repository: ExerciseRepository,
-    private val localUserRepository: UserLocalRepository
+    private val localUserRepository: UserLocalRepository,
+    private val trainingTypeRepository: TrainingTypeRepository
 ) : ViewModel() {
 
     private val _seriesList = MutableStateFlow<List<ExerciseSeries>>(emptyList())
     val seriesList: StateFlow<List<ExerciseSeries>> = _seriesList
+
+    private val _exercises = MutableStateFlow<List<String>>(emptyList())
+    val exercises: StateFlow<List<String>> = _exercises
 
     private var _lastDuration: Int = 0
     private var _startTime: Long = 0
@@ -30,6 +35,12 @@ class ExerciseViewModel(
 
     private val _timerRunning = mutableStateOf(false)
     val timerRunning: State<Boolean> = _timerRunning
+
+    fun loadData(){
+        viewModelScope.launch {
+            _exercises.value = trainingTypeRepository.getAll().map { x -> x.name }
+        }
+    }
 
     fun toggleTimer() {
         _timerRunning.value = !_timerRunning.value
