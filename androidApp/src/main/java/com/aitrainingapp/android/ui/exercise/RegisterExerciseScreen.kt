@@ -64,6 +64,60 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
+            Spacer(Modifier.height(8.dp))
+            var exerciseName by remember { mutableStateOf("") }
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = exerciseName,
+                    onValueChange = { exerciseName = it },
+                    readOnly = true,
+                    label = { Text("Nazwa ćwiczenia") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Gray,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = Color.White,
+                        focusedTextColor = Color.White,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = Color.Gray,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.exposedDropdownSize()
+                ) {
+                    exercises.forEach { exercise ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    exercise,
+                                    color = Color.Black
+                                )
+                            },
+                            onClick = {
+                                exerciseName = exercise
+                                viewModel.setSelectedExercise(exercise)
+                                expanded = false
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = Color.Black,
+                                disabledTextColor = Color.Gray
+                            )
+                        )
+                    }
+                }
+            }
+
             val recommendation by viewModel.recommendation
 
             Spacer(Modifier.height(8.dp))
@@ -130,60 +184,6 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
 
             Button(onClick = { viewModel.toggleTimer() }) {
                 Text(if (isRunning) "Stop" else "Start")
-            }
-
-            Spacer(Modifier.height(8.dp))
-
-            var exerciseName by remember { mutableStateOf("") }
-
-            ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = !expanded }
-            ) {
-                OutlinedTextField(
-                    value = exerciseName,
-                    onValueChange = { exerciseName = it },
-                    readOnly = true,
-                    label = { Text("Nazwa ćwiczenia") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = Color.Gray,
-                        focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = Color.White,
-                        focusedTextColor = Color.White,
-                        focusedLabelColor = MaterialTheme.colorScheme.primary,
-                        unfocusedLabelColor = Color.Gray,
-                        cursorColor = MaterialTheme.colorScheme.primary
-                    )
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
-                    modifier = Modifier.exposedDropdownSize()
-                ) {
-                    exercises.forEach { exercise ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    exercise,
-                                    color = Color.Black
-                                )
-                            },
-                            onClick = {
-                                exerciseName = exercise
-                                expanded = false
-                            },
-                            colors = MenuDefaults.itemColors(
-                                textColor = Color.Black,
-                                disabledTextColor = Color.Gray
-                            )
-                        )
-                    }
-                }
             }
 
             var weight by remember { mutableStateOf("") }

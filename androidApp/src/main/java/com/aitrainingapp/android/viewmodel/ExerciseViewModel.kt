@@ -54,6 +54,13 @@ class ExerciseViewModel(
     private val _timerRunning = mutableStateOf(false)
     val timerRunning: State<Boolean> = _timerRunning
 
+    private val _selectedExercise = mutableStateOf<String?>(null)
+    val selectedExercise: State<String?> = _selectedExercise
+
+    fun setSelectedExercise(name: String) {
+        _selectedExercise.value = name
+    }
+
     fun toggleTimer() {
         _timerRunning.value = !_timerRunning.value
         if (_timerRunning.value) {
@@ -129,7 +136,7 @@ class ExerciseViewModel(
 
             val feedback = QLearningFeedbackDto(
                 user_id = user.id,
-                type = "Bench press",
+                type = _selectedExercise.value ?: "unknown",
                 action = lastRawRecommendation ?: "unknown",
                 successful = successful,
                 weight = last.weight,
