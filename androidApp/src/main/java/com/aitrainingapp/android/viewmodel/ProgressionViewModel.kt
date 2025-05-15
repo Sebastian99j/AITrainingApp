@@ -5,14 +5,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aitrainingapp.domain.repository.ProgressionRepository
+import com.aitrainingapp.domain.repository.TrainingTypeRepository
 import com.aitrainingapp.domain.repository.UserLocalRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class ProgressionViewModel(
     private val repository: ProgressionRepository,
-    private val localUserRepository: UserLocalRepository
+    private val localUserRepository: UserLocalRepository,
+    private val trainingTypeRepository: TrainingTypeRepository
 ) : ViewModel() {
 
     private val _regressionData = mutableStateOf<List<Pair<String, Double>>>(emptyList())
@@ -21,7 +25,16 @@ class ProgressionViewModel(
     private val _forecastMap = mutableStateOf<Map<String, Double>>(emptyMap())
     val forecastMap: State<Map<String, Double>> = _forecastMap
 
-    fun analyzeProgression() {
+    private val _exercises = MutableStateFlow<List<String>>(emptyList())
+    val exercises: StateFlow<List<String>> = _exercises
+
+    fun loadData(){
+        viewModelScope.launch {
+            _exercises.value = trainingTypeRepository.getAll().map { x -> x.name }
+        }
+    }
+
+    fun analyzeProgression(type: String) {
         viewModelScope.launch {
             val userId = localUserRepository.getUserId()
             if (userId == null) {
@@ -30,7 +43,7 @@ class ProgressionViewModel(
                 return@launch
             }
 
-            val result = repository.runAnalysis(userId)
+            val result = repository.runAnalysis(userId, type)
             result.onSuccess { regression ->
                 _regressionData.value = regression
 

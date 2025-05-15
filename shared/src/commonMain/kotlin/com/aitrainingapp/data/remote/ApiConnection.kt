@@ -96,13 +96,13 @@ class ApiConnection {
         }
     }
 
-    suspend fun runPolynomialRegressionAndWait(userId: Int): List<Pair<String, Double>> {
+    suspend fun runPolynomialRegressionAndWait(userId: Int, type: String): List<Pair<String, Double>> {
         val token = Cache.accessToken
 
         // 1. Start async regression task
         val taskStartResponse: JsonObject = client.post("http://10.0.2.2:8333/ai/polynomial_regression_async") {
             contentType(ContentType.Application.Json)
-            setBody(mapOf("user_id" to userId))
+            setBody(RequestBody(userId, type))
             header("Authorization", "Bearer $token")
         }.body()
 
@@ -223,3 +223,6 @@ data class TaskResponse(val task_id: String)
 
 @Serializable
 data class TaskStatusResponse(val status: String, val result: List<Pair<String, Double>> = emptyList())
+
+@Serializable
+data class RequestBody(val user_id: Int, val type: String)

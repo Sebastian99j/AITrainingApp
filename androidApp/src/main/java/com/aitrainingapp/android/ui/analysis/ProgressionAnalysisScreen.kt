@@ -15,27 +15,82 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
     val data by viewModel.regressionData
     val forecast by viewModel.forecastMap
+    var expanded by remember { mutableStateOf(false) }
+    val exercises by viewModel.exercises.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.analyzeProgression()
+        viewModel.loadData()
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
         Column(modifier = Modifier.padding(16.dp)) {
+            Spacer(modifier = Modifier.height(26.dp))
+
             Text(
                 "Analiza progresji ciężaru",
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.White
             )
-            Text(
-                "Dla ćwiczenia Bench Press",
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.White
-            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            var exerciseName by remember { mutableStateOf("") }
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded }
+            ) {
+                OutlinedTextField(
+                    value = exerciseName,
+                    onValueChange = { exerciseName = it },
+                    readOnly = true,
+                    label = { Text("Nazwa ćwiczenia") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier
+                        .menuAnchor()
+                        .fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.Gray,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedTextColor = Color.White,
+                        focusedTextColor = Color.White,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = Color.Gray,
+                        cursorColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                    modifier = Modifier.exposedDropdownSize()
+                ) {
+                    exercises.forEach { exercise ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    exercise,
+                                    color = Color.Black
+                                )
+                            },
+                            onClick = {
+                                exerciseName = exercise
+                                viewModel.analyzeProgression(exercise)
+                                expanded = false
+                            },
+                            colors = MenuDefaults.itemColors(
+                                textColor = Color.Black,
+                                disabledTextColor = Color.Gray
+                            )
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

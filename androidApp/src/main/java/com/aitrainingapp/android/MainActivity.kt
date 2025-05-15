@@ -68,7 +68,8 @@ class MainActivity : ComponentActivity() {
 
         progressionViewModel = ProgressionViewModel(
             appModule.provideProgressionRepository(),
-            appModule.provideLocalUserRepository()
+            appModule.provideLocalUserRepository(),
+            appModule.provideTrainingTypeRepository()
         )
 
         exerciseViewModel = ExerciseViewModel(
