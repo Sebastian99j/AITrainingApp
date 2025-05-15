@@ -43,6 +43,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
     val exercises by viewModel.exercises.collectAsState()
     val elapsed by viewModel.elapsedSeconds.collectAsState()
     var expanded by remember { mutableStateOf(false) }
+    val plan by viewModel.nextTrainingPlan
 
     LaunchedEffect(Unit) {
         viewModel.loadData()
@@ -71,6 +72,25 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                         modifier = Modifier.padding(16.dp),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
+                }
+            }
+            plan?.let {
+                Spacer(Modifier.height(8.dp))
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    color = Color(0xFFe3f2fd), // jasnoniebieskie tło
+                    shadowElevation = 2.dp,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = it,
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Normal,
                         color = Color.Black
                     )
                 }

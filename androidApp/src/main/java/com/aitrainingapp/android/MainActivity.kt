@@ -74,7 +74,8 @@ class MainActivity : ComponentActivity() {
         exerciseViewModel = ExerciseViewModel(
             appModule.provideExerciseRepository(),
             appModule.provideLocalUserRepository(),
-            appModule.provideTrainingTypeRepository()
+            appModule.provideTrainingTypeRepository(),
+            appModule.provideTrainingHistoryRepository()
         )
 
         setContent {

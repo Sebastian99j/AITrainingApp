@@ -31,6 +31,11 @@ fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
                 style = MaterialTheme.typography.headlineMedium,
                 color = Color.White
             )
+            Text(
+                "Dla ćwiczenia Bench Press",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.White
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
