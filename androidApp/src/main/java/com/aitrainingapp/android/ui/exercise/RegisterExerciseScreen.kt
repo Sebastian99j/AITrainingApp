@@ -64,7 +64,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
-            Spacer(Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(20.dp))
             var exerciseName by remember { mutableStateOf("") }
 
             ExposedDropdownMenuBox(

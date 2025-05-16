@@ -36,6 +36,8 @@ fun TrainingTypeScreen(viewModel: TrainingTypeViewModel) {
                     .fillMaxWidth()
                     .weight(1f)
             ) {
+                Spacer(modifier = Modifier.height(20.dp))
+
                 Text(
                     text = "Typy ćwiczeń",
                     style = MaterialTheme.typography.headlineMedium,

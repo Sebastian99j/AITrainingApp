@@ -27,10 +27,12 @@ fun TrainingHistoryScreen(viewModel: TrainingHistoryViewModel) {
         color = Color.Black
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            Spacer(modifier = Modifier.height(20.dp))
+
             Text(
                 text = "Historia treningów",
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(16.dp))

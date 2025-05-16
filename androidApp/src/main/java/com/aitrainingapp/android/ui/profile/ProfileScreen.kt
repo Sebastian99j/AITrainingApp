@@ -48,10 +48,12 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                 .fillMaxSize()
                 .padding(24.dp)
         ) {
+            Spacer(modifier = Modifier.height(20.dp))
+
             Text(
                 text = "Profil użytkownika",
                 style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = Color.White
             )
 
             Spacer(modifier = Modifier.height(24.dp))
