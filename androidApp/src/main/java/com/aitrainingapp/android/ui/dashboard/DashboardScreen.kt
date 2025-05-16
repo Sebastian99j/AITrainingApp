@@ -3,20 +3,27 @@ package com.aitrainingapp.android.ui.dashboard
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aitrainingapp.android.R
+
+data class DashboardItem(
+    val label: String,
+    val icon: ImageVector,
+    val onClick: () -> Unit
+)
 
 @Composable
 fun DashboardScreen(
@@ -27,12 +34,17 @@ fun DashboardScreen(
     onNavigateToProgressionAnalysis: () -> Unit,
     onNavigateToRegisterExercise: () -> Unit
 ) {
-    val tiles = listOf("Lista ćwiczeń", "Historia treningów", "Profil użytkownika", "Rejestruj ćwiczenie",
-        "Analiza progresji ciężaru", "Ustawienia")
+    val dashboardItems = listOf(
+        DashboardItem("Lista ćwiczeń", Icons.Default.List, onNavigateToTrainingTypes),
+        DashboardItem("Historia treningów", Icons.Default.History, onNavigateToHistory),
+        DashboardItem("Profil użytkownika", Icons.Default.Person, onNavigateToProfile),
+        DashboardItem("Rejestruj ćwiczenie", Icons.Default.FitnessCenter, onNavigateToRegisterExercise),
+        DashboardItem("Analiza progresji ciężaru", Icons.Default.BarChart, onNavigateToProgressionAnalysis),
+        DashboardItem("Ustawienia", Icons.Default.Settings, onNavigateToSettings)
+    )
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Image(
             painter = painterResource(R.drawable.gym_background),
@@ -41,69 +53,47 @@ fun DashboardScreen(
             modifier = Modifier.matchParentSize()
         )
 
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 640.dp)
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                items(tiles) { label ->
-                    Card(
+            Spacer(modifier = Modifier.height(40.dp))
+
+            dashboardItems.forEach { item ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp)
+                        .clickable { item.onClick() },
+                    colors = CardDefaults.cardColors(containerColor = Color(0xBB1C1C1C)),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(4.dp)
+                ) {
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                            .clickable {
-                                if (label == "Lista ćwiczeń") {
-                                    onNavigateToTrainingTypes()
-                                }
-                                if (label == "Profil użytkownika") {
-                                    onNavigateToProfile()
-                                }
-                                if (label == "Ustawienia") {
-                                    onNavigateToSettings()
-                                }
-                                if (label == "Historia treningów") {
-                                    onNavigateToHistory()
-                                }
-                                if (label == "Analiza progresji ciężaru") {
-                                    onNavigateToProgressionAnalysis()
-                                }
-                                if (label == "Rejestruj ćwiczenie") {
-                                    onNavigateToRegisterExercise()
-                                }
-                            },
-                        colors = CardDefaults.cardColors(containerColor = Color(0xBB1C1C1C)),
-                        shape = RoundedCornerShape(20.dp),
-                        elevation = CardDefaults.cardElevation(6.dp)
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = label,
-                                fontSize = 18.sp,
-                                color = Color.White,
-                                lineHeight = 22.sp,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+                        Icon(
+                            imageVector = item.icon,
+                            contentDescription = item.label,
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = item.label,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
                     }
                 }
             }
         }
     }
 }
-
-
