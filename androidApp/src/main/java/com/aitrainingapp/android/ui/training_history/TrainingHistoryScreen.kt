@@ -24,7 +24,7 @@ fun TrainingHistoryScreen(viewModel: TrainingHistoryViewModel) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Spacer(modifier = Modifier.height(20.dp))
@@ -32,7 +32,7 @@ fun TrainingHistoryScreen(viewModel: TrainingHistoryViewModel) {
             Text(
                 text = "Historia treningów",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -70,7 +70,7 @@ fun TrainingHistoryScreen(viewModel: TrainingHistoryViewModel) {
                             ) {
                                 Text(
                                     text = "${volume.toInt()} kg",
-                                    color = Color.Black,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     style = MaterialTheme.typography.titleSmall
                                 )
                                 arrow?.let {
@@ -91,12 +91,12 @@ fun TrainingHistoryScreen(viewModel: TrainingHistoryViewModel) {
                             Spacer(modifier = Modifier.width(16.dp))
 
                             Column {
-                                Text("Typ: ${item.trainingType ?: "Nieznany"}", color = Color.Black)
-                                Text("Waga: ${item.weight} kg", color = Color.Black)
-                                Text("Powtórzenia: ${item.reps}", color = Color.Black)
-                                Text("Serie: ${item.sets}", color = Color.Black)
-                                Text("RPE: ${item.rpe}", color = Color.Black)
-                                Text("Data: ${formatDate(item.dateTime)}", color = Color.Black)
+                                Text("Typ: ${item.trainingType ?: "Nieznany"}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Waga: ${item.weight} kg", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Powtórzenia: ${item.reps}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Serie: ${item.sets}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("RPE: ${item.rpe}", color = MaterialTheme.colorScheme.onSurface)
+                                Text("Data: ${formatDate(item.dateTime)}", color = MaterialTheme.colorScheme.onSurface)
                             }
                         }
                     }

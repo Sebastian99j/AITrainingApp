@@ -41,7 +41,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -53,7 +53,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             Text(
                 text = "Profil użytkownika",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -77,7 +77,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             Text(
                 text = username,
                 style = MaterialTheme.typography.titleLarge,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             Text(
@@ -92,7 +92,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             Text(
                 text = "Wybierz profil",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -113,8 +113,8 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.Gray,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = Color.White,
-                        focusedTextColor = Color.White,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = Color.Gray,
                         cursorColor = MaterialTheme.colorScheme.primary
@@ -131,7 +131,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                             text = {
                                 Text(
                                     profile.name,
-                                    color = Color.Black
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             onClick = {
@@ -139,7 +139,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                                 expanded = false
                             },
                             colors = MenuDefaults.itemColors(
-                                textColor = Color.Black,
+                                textColor = MaterialTheme.colorScheme.onSurface,
                                 disabledTextColor = Color.Gray
                             )
                         )
@@ -163,17 +163,17 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Zmiana ciężaru: ${profile.weightChance}kg",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = "Zmiana powtórzeń: ${profile.repsChance}",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = "Zmiana serii: ${profile.setsChance}",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -194,7 +194,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
                     .height(48.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.White
+                    contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {

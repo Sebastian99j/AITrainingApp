@@ -82,8 +82,9 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
+            val isDarkMode = settingsViewModel.darkMode.collectAsState().value
 
-            MyApplicationTheme {
+            MyApplicationTheme(darkTheme = isDarkMode) {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     NavHost(navController = navController, startDestination = "login") {
                         composable("login") {
@@ -111,7 +112,8 @@ class MainActivity : ComponentActivity() {
                         composable("settings") {
                             SettingsScreen(
                                 currentUsername = settingsViewModel.username.collectAsState().value,
-                                onUsernameChange = { newName -> settingsViewModel.updateUsername(newName) }
+                                onUsernameChange = { newName -> settingsViewModel.updateUsername(newName) },
+                                viewModel = settingsViewModel
                             )
                         }
                         composable("trainingHistory") {

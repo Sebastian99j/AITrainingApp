@@ -27,14 +27,14 @@ fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
         viewModel.loadData()
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
+    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(modifier = Modifier.padding(16.dp)) {
             Spacer(modifier = Modifier.height(26.dp))
 
             Text(
                 "Analiza progresji ciężaru",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -57,8 +57,8 @@ fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.Gray,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = Color.White,
-                        focusedTextColor = Color.White,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = Color.Gray,
                         cursorColor = MaterialTheme.colorScheme.primary
@@ -75,7 +75,7 @@ fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
                             text = {
                                 Text(
                                     exercise,
-                                    color = Color.Black
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             onClick = {
@@ -84,7 +84,7 @@ fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
                                 expanded = false
                             },
                             colors = MenuDefaults.itemColors(
-                                textColor = Color.Black,
+                                textColor = MaterialTheme.colorScheme.onSurface,
                                 disabledTextColor = Color.Gray
                             )
                         )
@@ -98,7 +98,7 @@ fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
                 LineChart(data)
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Text("Prognozy ciężaru:", color = Color.White)
+                Text("Prognozy ciężaru:", color = MaterialTheme.colorScheme.onBackground)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 forecast.forEach { (label, value) ->
@@ -108,8 +108,9 @@ fun ProgressionAnalysisScreen(viewModel: ProgressionViewModel) {
                             .padding(vertical = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(label, color = Color.White)
-                        Text("${"%.1f".format(value)} kg", color = Color.White)
+                        Text(label, color = MaterialTheme.colorScheme.onBackground)
+                        Text("${"%.1f".format(value)} kg",
+                            color = MaterialTheme.colorScheme.onBackground)
                     }
                 }
             } else {

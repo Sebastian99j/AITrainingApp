@@ -1,28 +1,32 @@
 package com.aitrainingapp.android.ui.settings
 
+import android.app.Activity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.aitrainingapp.android.viewmodel.UserSettingsViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
     currentUsername: String,
-    onUsernameChange: (String) -> Unit
+    onUsernameChange: (String) -> Unit,
+    viewModel: UserSettingsViewModel
 ) {
     val scope = rememberCoroutineScope()
     var username by remember { mutableStateOf(currentUsername) }
-    var darkMode by remember { mutableStateOf(false) }
     var volumeLevel by remember { mutableFloatStateOf(0.5f) }
     var brightness by remember { mutableFloatStateOf(0.5f) }
+    val activity = LocalContext.current as? Activity
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -35,7 +39,7 @@ fun SettingsScreen(
             Text(
                 text = "Ustawienia",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             // 🔤 Edycja nazwy użytkownika
@@ -44,8 +48,8 @@ fun SettingsScreen(
                 onValueChange = { username = it },
                 label = { Text("Nazwa użytkownika") },
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedTextColor = Color.White,
-                    focusedTextColor = Color.White,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground,
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = Color.Gray,
                     cursorColor = MaterialTheme.colorScheme.primary,
@@ -65,7 +69,7 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.White
+                    contentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 shape = MaterialTheme.shapes.medium
             ) {
@@ -74,36 +78,43 @@ fun SettingsScreen(
 
             Divider(color = Color.DarkGray)
 
-            // 🌙 Tryb ciemny (fake)
+            // 🌙 Tryb ciemny
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Tryb ciemny", color = Color.White)
-                Switch(checked = darkMode, onCheckedChange = { darkMode = it })
+                Text("Tryb ciemny", color = MaterialTheme.colorScheme.onBackground)
+                Switch(
+                    checked = viewModel.darkMode.collectAsState().value,
+                    onCheckedChange = { viewModel.toggleDarkMode(it) }
+                )
             }
 
-            // 🔊 Suwak głośności (fake)
-            Text("Głośność", color = Color.White)
+            val context = LocalContext.current
+
+            Text("Głośność", color = MaterialTheme.colorScheme.onBackground)
             Slider(
                 value = volumeLevel,
-                onValueChange = { volumeLevel = it },
+                onValueChange = {
+                    volumeLevel = it
+                    viewModel.setVolume(context, it)
+                },
                 colors = SliderDefaults.colors(
                     thumbColor = MaterialTheme.colorScheme.primary,
                     activeTrackColor = MaterialTheme.colorScheme.primary
                 )
             )
 
-            // ☀️ Jasność (fake)
-            Text("Jasność", color = Color.White)
+            Text("Jasność", color = MaterialTheme.colorScheme.onBackground)
             Slider(
                 value = brightness,
-                onValueChange = { brightness = it },
-                colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.primary,
-                    activeTrackColor = MaterialTheme.colorScheme.primary
-                )
+                onValueChange = {
+                    brightness = it
+                    activity?.window?.attributes = activity?.window?.attributes?.apply {
+                        screenBrightness = it
+                    }
+                }
             )
         }
     }

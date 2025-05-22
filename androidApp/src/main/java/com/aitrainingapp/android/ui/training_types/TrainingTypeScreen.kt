@@ -23,7 +23,7 @@ fun TrainingTypeScreen(viewModel: TrainingTypeViewModel) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -41,7 +41,7 @@ fun TrainingTypeScreen(viewModel: TrainingTypeViewModel) {
                 Text(
                     text = "Typy ćwiczeń",
                     style = MaterialTheme.typography.headlineMedium,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 

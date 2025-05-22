@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -54,7 +53,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.Black
+        color = MaterialTheme.colorScheme.background
     ) {
         val scrollState = rememberScrollState()
 
@@ -83,8 +82,8 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.Gray,
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
-                        unfocusedTextColor = Color.White,
-                        focusedTextColor = Color.White,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = Color.Gray,
                         cursorColor = MaterialTheme.colorScheme.primary
@@ -101,7 +100,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                             text = {
                                 Text(
                                     exercise,
-                                    color = Color.Black
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                             onClick = {
@@ -110,7 +109,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                                 expanded = false
                             },
                             colors = MenuDefaults.itemColors(
-                                textColor = Color.Black,
+                                textColor = MaterialTheme.colorScheme.onSurface,
                                 disabledTextColor = Color.Gray
                             )
                         )
@@ -135,7 +134,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                         modifier = Modifier.padding(16.dp),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -154,13 +153,13 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                         modifier = Modifier.padding(16.dp),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
 
             if (!feedbackSent) {
-                Text("Czy rekomendacja się sprawdziła?", color = Color.White)
+                Text("Czy rekomendacja się sprawdziła?", color = MaterialTheme.colorScheme.onBackground)
 
                 Row(modifier = Modifier.fillMaxWidth()) {
                     Button(
@@ -180,7 +179,8 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                 Text("✅ Feedback został zapisany", color = Color.Green)
             }
 
-            Text("⏱️ Czas przerwy: ${if (isRunning) "$elapsed s" else "Zatrzymany"}", color = Color.White)
+            Text("⏱️ Czas przerwy: ${if (isRunning) "$elapsed s" else "Zatrzymany"}",
+                color = MaterialTheme.colorScheme.onBackground)
 
             Button(onClick = { viewModel.toggleTimer() }) {
                 Text(if (isRunning) "Stop" else "Start")
@@ -196,30 +196,30 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                 OutlinedTextField(
                     value = weight,
                     onValueChange = { weight = it },
-                    label = { Text("Waga (kg)", color = Color.White) },
+                    label = { Text("Waga (kg)", color = MaterialTheme.colorScheme.onBackground) },
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 4.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White,
-                        focusedBorderColor = Color.White,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.onBackground,
+                        focusedBorderColor = MaterialTheme.colorScheme.onBackground,
                         unfocusedBorderColor = Color.Gray
                     )
                 )
                 OutlinedTextField(
                     value = reps,
                     onValueChange = { reps = it },
-                    label = { Text("Powtórzenia", color = Color.White) },
+                    label = { Text("Powtórzenia", color = MaterialTheme.colorScheme.onBackground) },
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White,
-                        focusedBorderColor = Color.White,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.onBackground,
+                        focusedBorderColor = MaterialTheme.colorScheme.onBackground,
                         unfocusedBorderColor = Color.Gray
                     )
                 )
@@ -231,31 +231,31 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                 OutlinedTextField(
                     value = "1",
                     onValueChange = {},
-                    label = { Text("Serie", color = Color.White) },
+                    label = { Text("Serie", color = MaterialTheme.colorScheme.onBackground) },
                     readOnly = true,
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 4.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White,
-                        focusedBorderColor = Color.White,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.onBackground,
+                        focusedBorderColor = MaterialTheme.colorScheme.onBackground,
                         unfocusedBorderColor = Color.Gray
                     )
                 )
                 OutlinedTextField(
                     value = rpe,
                     onValueChange = { rpe = it },
-                    label = { Text("RPE", color = Color.White) },
+                    label = { Text("RPE", color = MaterialTheme.colorScheme.onBackground) },
                     modifier = Modifier
                         .weight(1f)
                         .padding(start = 4.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White,
-                        focusedBorderColor = Color.White,
+                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = MaterialTheme.colorScheme.onBackground,
+                        focusedBorderColor = MaterialTheme.colorScheme.onBackground,
                         unfocusedBorderColor = Color.Gray
                     )
                 )
@@ -279,7 +279,8 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
             Spacer(Modifier.height(16.dp))
 
             series.forEach { s ->
-                Text("🔹 ${s.weight}kg × ${s.reps} × ${s.sets}, ${s.rpe} RPE, ${s.durationSeconds}s", color = Color.White)
+                Text("🔹 ${s.weight}kg × ${s.reps} × ${s.sets}, ${s.rpe} RPE, ${s.durationSeconds}s",
+                    color = MaterialTheme.colorScheme.onBackground)
             }
 
             Spacer(Modifier.height(16.dp))
@@ -287,7 +288,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
             Text(
                 "📊 Podsumowanie",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(Modifier.height(8.dp))
@@ -295,12 +296,12 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     "🔁 Powtórzenia: ${viewModel.totalReps()}",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
                     "📦 Serie: ${viewModel.totalSets()}",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -310,12 +311,12 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     "🏋️ Ciężar: ${viewModel.totalWeight()} kg",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.weight(1f)
                 )
                 Text(
                     "⏱️ Śr. czas serii: ${viewModel.averageDuration()} s",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.weight(1f)
                 )
             }

@@ -25,11 +25,12 @@ fun LoginScreen(
     var isLoginMode by remember { mutableStateOf(true) }
 
     val state by viewModel.state.collectAsState()
+    //.background(Color(0xFF101010)) // ciemne tło siłowni
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF101010)) // ciemne tło siłowni
+            .background(MaterialTheme.colorScheme.background)
             .padding(24.dp)
     ) {
         Column(
@@ -39,7 +40,7 @@ fun LoginScreen(
             Text(
                 text = if (isLoginMode) "Log in to AI Training App" else "Register New Account",
                 style = MaterialTheme.typography.headlineMedium,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -58,8 +59,8 @@ fun LoginScreen(
                     unfocusedLabelColor = Color.LightGray,
                     containerColor = Color.Transparent,
                     disabledTextColor = Color.LightGray,
-                    unfocusedTextColor = Color.White,
-                    focusedTextColor = Color.White
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground
                 )
             )
 
@@ -81,8 +82,8 @@ fun LoginScreen(
                     unfocusedLabelColor = Color.LightGray,
                     containerColor = Color.Transparent,
                     disabledTextColor = Color.LightGray,
-                    unfocusedTextColor = Color.White,
-                    focusedTextColor = Color.White
+                    unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                    focusedTextColor = MaterialTheme.colorScheme.onBackground
                 )
             )
 
