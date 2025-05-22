@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     kotlin("plugin.serialization") version "1.9.0"
+    id("com.squareup.sqldelight")
 }
 
 kotlin {
@@ -40,6 +41,12 @@ kotlin {
                 implementation("io.ktor:ktor-client-json:2.3.4")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+                implementation("com.squareup.sqldelight:runtime:1.5.5")
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation("com.squareup.sqldelight:android-driver:1.5.5")
             }
         }
     }
