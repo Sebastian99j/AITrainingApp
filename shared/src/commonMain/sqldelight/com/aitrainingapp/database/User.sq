@@ -1,0 +1,18 @@
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    aiIdentifier TEXT,
+    profileId INTEGER,
+    active INTEGER NOT NULL,
+    notificationOn INTEGER NOT NULL
+);
+
+insertUser:
+INSERT OR REPLACE INTO users(id, username, aiIdentifier, profileId, active, notificationOn)
+VALUES ((SELECT id FROM users LIMIT 1), ?, ?, ?, ?, ?);
+
+getFirstUser:
+SELECT * FROM users LIMIT 1;
+
+deleteAllUsers:
+DELETE FROM users;

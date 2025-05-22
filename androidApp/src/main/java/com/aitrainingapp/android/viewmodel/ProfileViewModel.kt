@@ -2,16 +2,16 @@ package com.aitrainingapp.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aitrainingapp.android.room.ProfileEntity
-import com.aitrainingapp.android.room.dao.ProfileDao
-import com.aitrainingapp.android.room.dao.UserDao
+import com.aitrainingapp.android.database.ProfileEntity
+import com.aitrainingapp.database.ProfileQueries
+import com.aitrainingapp.database.UserQueries
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-    private val profileDao: ProfileDao,
-    private val userDao: UserDao
+    private val profileQueries: ProfileQueries,
+    private val userQueries: UserQueries
 ) : ViewModel() {
 
     private val _profiles = MutableStateFlow<List<ProfileEntity>>(emptyList())
@@ -28,20 +28,37 @@ class ProfileViewModel(
 
     fun loadData() {
         viewModelScope.launch {
-            _profiles.value = profileDao.getAll()
-            userDao.getFirstUser()?.let {
+            _profiles.value = profileQueries.getAllProfiles().executeAsList().map {
+                ProfileEntity(
+                    id = it.id.toInt(),
+                    name = it.name,
+                    weightChance = it.weightChance.toFloat(),
+                    repsChance = it.repsChance?.toInt() ?: 0,
+                    setsChance = it.setsChance?.toInt() ?: 0
+                )
+            }
+
+            // Load user
+            val user = userQueries.getFirstUser().executeAsOneOrNull()
+            user?.let {
                 _username.value = it.username
-                _aiIdentifier.value = it.aiIdentifier
-                _selectedProfileId.value = it.profileId
+                _aiIdentifier.value = it.aiIdentifier ?: ""
+                _selectedProfileId.value = it.profileId?.toInt()
             }
         }
     }
 
     fun setProfileForUser(profileId: Int) {
         viewModelScope.launch {
-            userDao.getFirstUser()?.let { user ->
-                val updated = user.copy(profileId = profileId)
-                userDao.insertUser(updated)
+            val user = userQueries.getFirstUser().executeAsOneOrNull()
+            user?.let {
+                userQueries.insertUser(
+                    username = it.username,
+                    aiIdentifier = it.aiIdentifier,
+                    profileId = profileId.toLong(),
+                    active = it.active,
+                    notificationOn = it.notificationOn
+                )
                 _selectedProfileId.value = profileId
             }
         }

@@ -1,12 +1,9 @@
-package com.aitrainingapp.android.room
+package com.aitrainingapp.android.database
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.aitrainingapp.domain.model.Profile
 
-@Entity(tableName = "profiles")
 data class ProfileEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val id: Int = 0,
     val name: String,
     val weightChance: Float,
     val repsChance: Int,
@@ -15,6 +12,8 @@ data class ProfileEntity(
 
 fun ProfileEntity.toDomain(): Profile {
     return Profile(
+        id = this.id,
+        name = this.name,
         weightStep = this.weightChance,
         repsStep = this.repsChance,
         setsStep = this.setsChance

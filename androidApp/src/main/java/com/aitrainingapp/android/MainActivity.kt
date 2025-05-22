@@ -26,6 +26,8 @@ import com.aitrainingapp.android.viewmodel.ProgressionViewModel
 import com.aitrainingapp.android.viewmodel.TrainingHistoryViewModel
 import com.aitrainingapp.android.viewmodel.TrainingTypeViewModel
 import com.aitrainingapp.android.viewmodel.UserSettingsViewModel
+import com.aitrainingapp.database.DatabaseDriverFactory
+import com.aitrainingapp.database.DatabaseHelper
 
 class MainActivity : ComponentActivity() {
     private lateinit var loginViewModel: AndroidLoginViewModel
@@ -40,7 +42,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val appModule = AppModule(applicationContext)
-        appModule.insertDefaultProfilesIfNeeded()
+
+        val dbHelper = DatabaseHelper(DatabaseDriverFactory(this))
+        dbHelper.seedDefaultData()
+        //dbHelper.userQueries.deleteAllUsers()
+        //dbHelper.profileQueries.deleteAllProfiles()
 
         loginViewModel = AndroidLoginViewModel(
             appModule.provideLoginUseCase(),
@@ -53,13 +59,11 @@ class MainActivity : ComponentActivity() {
         )
 
         profileViewModel = ProfileViewModel(
-            appModule.provideProfileDao(),
-            appModule.provideUserDao()
+            appModule.provideProfileQueries(),
+            appModule.provideUserQueries()
         )
 
-        settingsViewModel = UserSettingsViewModel(
-            appModule.provideUserDao()
-        )
+        settingsViewModel = UserSettingsViewModel(appModule.provideUserQueries())
 
         trainingHistoryViewModel = TrainingHistoryViewModel(
             appModule.provideTrainingHistoryRepository(),

@@ -12,7 +12,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.aitrainingapp.android.room.ProfileEntity
+import com.aitrainingapp.android.database.ProfileEntity
 import com.aitrainingapp.android.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 

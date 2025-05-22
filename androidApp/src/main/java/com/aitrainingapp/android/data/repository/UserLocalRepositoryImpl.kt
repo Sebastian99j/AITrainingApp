@@ -1,33 +1,38 @@
 package com.aitrainingapp.android.data.repository
 
-import com.aitrainingapp.android.room.dao.ProfileDao
-import com.aitrainingapp.android.room.dao.UserDao
-import com.aitrainingapp.android.room.toDomain
-import com.aitrainingapp.android.room.toEntity
+import com.aitrainingapp.database.ProfileQueries
+import com.aitrainingapp.database.UserQueries
 import com.aitrainingapp.domain.model.Profile
 import com.aitrainingapp.domain.model.User
+import com.aitrainingapp.domain.model.toDomain
 import com.aitrainingapp.domain.repository.UserLocalRepository
 
 class UserLocalRepositoryImpl(
-    private val userDao: UserDao,
-    private val profileDao: ProfileDao
+    private val userQueries: UserQueries,
+    private val profileQueries: ProfileQueries
 ) : UserLocalRepository {
 
     override suspend fun insertUser(user: User) {
-        userDao.insertUser(user.toEntity())
+        userQueries.insertUser(
+            username = user.username,
+            aiIdentifier = user.aiIdentifier ?: "",
+            profileId = user.profileId?.toLong(),
+            active = if (user.active) 1 else 0,
+            notificationOn = if (user.notificationOn) 1 else 0
+        )
     }
 
     override suspend fun getUserById(): User? {
-        return userDao.getFirstUser()?.toDomain()
+        return userQueries.getFirstUser().executeAsOneOrNull()?.toDomain()
     }
 
     override suspend fun getUserId(): Int? {
-        return userDao.getFirstUser()?.toDomain()?.id
+        return getUserById()?.id
     }
 
     override suspend fun getUserProfile(): Profile? {
-        val user = userDao.getFirstUser()?.toDomain() ?: return null
+        val user = getUserById() ?: return null
         val profileId = user.profileId ?: return null
-        return profileDao.getProfileById(profileId)?.toDomain()
+        return profileQueries.getProfileById(profileId.toLong()).executeAsOneOrNull()?.toDomain()
     }
 }

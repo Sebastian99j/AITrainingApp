@@ -1,12 +1,9 @@
-package com.aitrainingapp.android.room
+package com.aitrainingapp.android.database
 
 import com.aitrainingapp.domain.model.User
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "users")
 data class UserEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val id: Int = 0,
     val username: String,
     val aiIdentifier: String,
     val profileId: Int? = null,

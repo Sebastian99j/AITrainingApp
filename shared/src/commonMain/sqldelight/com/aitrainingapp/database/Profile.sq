@@ -1,0 +1,20 @@
+CREATE TABLE profiles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    weightChance REAL NOT NULL,
+    repsChance INTEGER,
+    setsChance INTEGER
+);
+
+insertProfile:
+INSERT OR REPLACE INTO profiles(name, weightChance, repsChance, setsChance)
+VALUES (?, ?, ?, ?);
+
+getAllProfiles:
+SELECT * FROM profiles;
+
+getProfileById:
+SELECT * FROM profiles WHERE id = ?;
+
+deleteAllProfiles:
+DELETE FROM profiles;

@@ -4,13 +4,13 @@ import android.content.Context
 import android.media.AudioManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aitrainingapp.android.room.dao.UserDao
+import com.aitrainingapp.database.UserQueries
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class UserSettingsViewModel(
-    private val userDao: UserDao
+    private val userQueries: UserQueries
 ) : ViewModel() {
 
     private val _username = MutableStateFlow("")
@@ -29,7 +29,7 @@ class UserSettingsViewModel(
 
     private fun loadUsername() {
         viewModelScope.launch {
-            val user = userDao.getFirstUser()
+            val user = userQueries.getFirstUser().executeAsOneOrNull()
             user?.let {
                 _username.value = it.username
             }
@@ -38,9 +38,15 @@ class UserSettingsViewModel(
 
     fun updateUsername(newName: String) {
         viewModelScope.launch {
-            val user = userDao.getFirstUser()
-            if (user != null) {
-                userDao.insertUser(user.copy(username = newName))
+            val user = userQueries.getFirstUser().executeAsOneOrNull()
+            user?.let {
+                userQueries.insertUser(
+                    username = newName,
+                    aiIdentifier = it.aiIdentifier,
+                    profileId = it.profileId,
+                    active = it.active,
+                    notificationOn = it.notificationOn
+                )
                 _username.value = newName
             }
         }

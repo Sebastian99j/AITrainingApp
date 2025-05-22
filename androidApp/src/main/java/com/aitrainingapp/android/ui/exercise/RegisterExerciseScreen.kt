@@ -134,7 +134,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                         modifier = Modifier.padding(16.dp),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color.Black
                     )
                 }
             }
@@ -153,7 +153,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                         modifier = Modifier.padding(16.dp),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color.Black
                     )
                 }
             }
