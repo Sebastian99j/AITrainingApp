@@ -92,6 +92,19 @@ fun SettingsScreen(
             }
 
             val context = LocalContext.current
+            val isNotificationOn = viewModel.notificationOn.collectAsState().value
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Przypomnienie o treningu", color = MaterialTheme.colorScheme.onBackground)
+                Switch(
+                    checked = isNotificationOn,
+                    onCheckedChange = { viewModel.toggleNotification(context, it) }
+                )
+            }
 
             Text("Głośność", color = MaterialTheme.colorScheme.onBackground)
             Slider(
