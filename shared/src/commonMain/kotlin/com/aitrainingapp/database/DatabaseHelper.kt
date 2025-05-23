@@ -1,5 +1,7 @@
 package com.aitrainingapp.database
 
+import com.aitrainingapp.domain.model.User
+
 class DatabaseHelper(factory: DatabaseDriverFactory) {
     private val database = AppDatabase(factory.createDriver())
 
@@ -7,8 +9,21 @@ class DatabaseHelper(factory: DatabaseDriverFactory) {
     val profileQueries = database.profileQueries
 
     val profileRepository = ProfileRepository(profileQueries)
+    val userRepository = UserRepository(userQueries)
 
     fun seedDefaultData() {
         profileRepository.insertDefaultProfilesIfNeeded()
+        if (userRepository.getFirstUser() == null) {
+            userRepository.insertUser(
+                User(
+                    id = 1,
+                    username = "admin",
+                    aiIdentifier = "admin",
+                    profileId = 1,
+                    active = true,
+                    notificationOn = false
+                )
+            )
+        }
     }
 }
