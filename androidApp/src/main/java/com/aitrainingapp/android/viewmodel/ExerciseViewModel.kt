@@ -102,7 +102,7 @@ class ExerciseViewModel(
 
             val lastTraining = trainingHistoryRepository.getTrainingHistory(userId).lastOrNull()
             if (lastTraining == null || profile == null) {
-                _nextTrainingPlan.value = "Brak danych do zaplanowania treningu"
+                _nextTrainingPlan.value = "Brak danych do zaplanowania treningu (nie ustawiono profilu)"
                 return@launch
             }
 
