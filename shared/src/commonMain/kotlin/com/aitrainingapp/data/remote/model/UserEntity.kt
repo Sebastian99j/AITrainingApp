@@ -1,4 +1,4 @@
-package com.aitrainingapp.android.database
+package com.aitrainingapp.data.remote.model
 
 import com.aitrainingapp.domain.model.User
 

@@ -1,35 +1,41 @@
-package com.aitrainingapp.android.viewmodel
+package com.aitrainingapp.controller
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.aitrainingapp.data.remote.model.ProfileEntity
 import com.aitrainingapp.database.ProfileQueries
 import com.aitrainingapp.database.UserQueries
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ProfileViewModel(
+data class ProfileUiModel(
+    val id: Int,
+    val name: String,
+    val weightChance: Float,
+    val repsChance: Int,
+    val setsChance: Int
+)
+
+class ProfileController(
     private val profileQueries: ProfileQueries,
-    private val userQueries: UserQueries
-) : ViewModel() {
+    private val userQueries: UserQueries,
+    private val scope: CoroutineScope
+) {
+    private val _profiles = MutableStateFlow<List<ProfileUiModel>>(emptyList())
+    val profiles: StateFlow<List<ProfileUiModel>> = _profiles
 
-    private val _profiles = MutableStateFlow<List<ProfileEntity>>(emptyList())
-    val profiles: StateFlow<List<ProfileEntity>> = _profiles
-
-    private val _username = MutableStateFlow<String>("")
+    private val _username = MutableStateFlow("")
     val username: StateFlow<String> = _username
 
-    private val _aiIdentifier = MutableStateFlow<String>("")
+    private val _aiIdentifier = MutableStateFlow("")
     val aiIdentifier: StateFlow<String> = _aiIdentifier
 
     private val _selectedProfileId = MutableStateFlow<Int?>(null)
     val selectedProfileId: StateFlow<Int?> = _selectedProfileId
 
     fun loadData() {
-        viewModelScope.launch {
+        scope.launch {
             _profiles.value = profileQueries.getAllProfiles().executeAsList().map {
-                ProfileEntity(
+                ProfileUiModel(
                     id = it.id.toInt(),
                     name = it.name,
                     weightChance = it.weightChance.toFloat(),
@@ -38,7 +44,6 @@ class ProfileViewModel(
                 )
             }
 
-            // Load user
             val user = userQueries.getFirstUser().executeAsOneOrNull()
             user?.let {
                 _username.value = it.username
@@ -49,7 +54,7 @@ class ProfileViewModel(
     }
 
     fun setProfileForUser(profileId: Int) {
-        viewModelScope.launch {
+        scope.launch {
             val user = userQueries.getFirstUser().executeAsOneOrNull()
             user?.let {
                 userQueries.insertUser(
