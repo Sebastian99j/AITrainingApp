@@ -45,6 +45,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
     val exercises by viewModel.exercises.collectAsState()
     val elapsed by viewModel.elapsedSeconds.collectAsState()
     var expanded by remember { mutableStateOf(false) }
+    var exerciseSelected by remember { mutableStateOf(false) }
     val plan by viewModel.nextTrainingPlan
     val feedbackSent by viewModel.feedbackSent
 
@@ -109,6 +110,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                                 exerciseName = exercise
                                 viewModel.setSelectedExercise(exercise)
                                 expanded = false
+                                exerciseSelected = true
                             },
                             colors = MenuDefaults.itemColors(
                                 textColor = MaterialTheme.colorScheme.onSurface,
@@ -122,63 +124,68 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
             val recommendation by viewModel.recommendation
 
             Spacer(Modifier.height(8.dp))
-            recommendation?.let {
-                androidx.compose.material3.Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    color = Color(0xFFFFF4E1),
-                    shadowElevation = 4.dp,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "📈 Rekomendacja: $it",
-                        modifier = Modifier.padding(16.dp),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
-                    )
-                }
-            }
-            plan?.let {
-                Spacer(Modifier.height(8.dp))
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    color = Color(0xFFe3f2fd), // jasnoniebieskie tło
-                    shadowElevation = 2.dp,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = it,
-                        modifier = Modifier.padding(16.dp),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color.Black
-                    )
-                }
-            }
-
-            if (!feedbackSent) {
-                Text("Czy rekomendacja się sprawdziła?", color = MaterialTheme.colorScheme.onBackground)
-
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Button(
-                        onClick = { viewModel.sendFeedback(successful = true) },
-                        modifier = Modifier.weight(1f).padding(end = 4.dp)
+            if (exerciseSelected) {
+                recommendation?.let {
+                    androidx.compose.material3.Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        color = Color(0xFFFFF4E1),
+                        shadowElevation = 4.dp,
+                        shape = RoundedCornerShape(8.dp)
                     ) {
-                        Text("✅ Tak")
-                    }
-                    Button(
-                        onClick = { viewModel.sendFeedback(successful = false) },
-                        modifier = Modifier.weight(1f).padding(start = 4.dp)
-                    ) {
-                        Text("❌ Nie")
+                        Text(
+                            text = "📈 Rekomendacja: $it",
+                            modifier = Modifier.padding(16.dp),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black
+                        )
                     }
                 }
-            } else {
-                Text("✅ Feedback został zapisany", color = Color.Green)
+                plan?.let {
+                    Spacer(Modifier.height(8.dp))
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        color = Color(0xFFe3f2fd), // jasnoniebieskie tło
+                        shadowElevation = 2.dp,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(16.dp),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = Color.Black
+                        )
+                    }
+                }
+
+                if (!feedbackSent) {
+                    Text(
+                        "Czy rekomendacja się sprawdziła?",
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = { viewModel.sendFeedback(successful = true) },
+                            modifier = Modifier.weight(1f).padding(end = 4.dp)
+                        ) {
+                            Text("✅ Tak")
+                        }
+                        Button(
+                            onClick = { viewModel.sendFeedback(successful = false) },
+                            modifier = Modifier.weight(1f).padding(start = 4.dp)
+                        ) {
+                            Text("❌ Nie")
+                        }
+                    }
+                } else {
+                    Text("✅ Feedback został zapisany", color = Color.Green)
+                }
             }
 
             Text("⏱️ Czas przerwy: ${if (isRunning) "$elapsed s" else "Zatrzymany"}",
@@ -335,6 +342,7 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                     weight = ""
                     reps = ""
                     rpe = ""
+                    exerciseSelected = false
                 }
             }) {
                 Text("💾 Zapisz wszystkie")

@@ -121,8 +121,15 @@ class ExerciseViewModel(
             • Ciężar: ${adjusted.weight} kg
             • Powtórzenia: ${adjusted.reps}
             • Serie: ${adjusted.sets}
-            • RPE: ${adjusted.rpe}
         """.trimIndent()
+
+//            _nextTrainingPlan.value = """
+//            📝 Kolejny trening:
+//            • Ciężar: ${adjusted.weight} kg
+//            • Powtórzenia: ${adjusted.reps}
+//            • Serie: ${adjusted.sets}
+//            • RPE: ${adjusted.rpe}
+//        """.trimIndent()
         }
     }
 

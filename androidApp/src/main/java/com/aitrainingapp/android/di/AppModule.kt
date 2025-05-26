@@ -34,7 +34,7 @@ class AppModule(context: Context) {
     fun provideProfileQueries() = dbHelper.profileQueries
 
     private val api = ApiConnection()
-    private val userRepository: UserRepository = UserRepositoryImpl(api)
+    private val userRepository: UserRepository = UserRepositoryImpl(api, provideProfileQueries())
     private val localUserRepository: UserLocalRepository = UserLocalRepositoryImpl(provideUserQueries(), provideProfileQueries())
     private val trainingTypeRepository: TrainingTypeRepository = TrainingTypeRepositoryImpl(api)
     private val trainingHistoryRepository: TrainingHistoryRepository = TrainingHistoryRepositoryImpl(api)

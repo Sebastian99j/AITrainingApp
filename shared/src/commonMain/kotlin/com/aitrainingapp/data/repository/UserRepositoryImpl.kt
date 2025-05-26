@@ -1,6 +1,7 @@
 package com.aitrainingapp.data.repository
 
 import com.aitrainingapp.data.remote.ApiConnection
+import com.aitrainingapp.database.ProfileQueries
 import com.aitrainingapp.domain.model.User
 import com.aitrainingapp.domain.repository.UserRepository
 import com.aitrainingapp.util.Cache
@@ -8,7 +9,8 @@ import com.aitrainingapp.util.Result
 import io.ktor.client.statement.bodyAsText
 
 class UserRepositoryImpl(
-    private val api: ApiConnection
+    private val api: ApiConnection,
+    private val queries: ProfileQueries
 ) : UserRepository {
     override suspend fun login(username: String, password: String): Result<User> {
         return try {
@@ -67,7 +69,7 @@ class UserRepositoryImpl(
                 id = userDto.id,
                 username = userDto.username,
                 aiIdentifier = userDto.aiIdentifier,
-                profileId = null,
+                profileId = queries.getAllProfiles().executeAsList().firstOrNull()?.id?.toInt() ?: 1,
                 active = true,
                 notificationOn = false
             )
