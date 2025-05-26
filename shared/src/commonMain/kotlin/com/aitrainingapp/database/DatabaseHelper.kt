@@ -19,7 +19,7 @@ class DatabaseHelper(factory: DatabaseDriverFactory) {
                     id = 1,
                     username = "admin",
                     aiIdentifier = "admin",
-                    profileId = 1,
+                    profileId = profileRepository.getAllProfiles().firstOrNull()?.id?.toInt() ?: 1,
                     active = true,
                     notificationOn = false
                 )

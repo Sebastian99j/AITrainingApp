@@ -10,4 +10,6 @@ class ProfileRepository(private val queries: ProfileQueries) {
             queries.insertProfile("Zaawansowany", 0.5, 1, 1)
         }
     }
+
+    fun getAllProfiles() = queries.getAllProfiles().executeAsList()
 }

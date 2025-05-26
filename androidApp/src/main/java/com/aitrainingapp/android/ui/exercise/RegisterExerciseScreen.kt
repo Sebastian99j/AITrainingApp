@@ -1,5 +1,6 @@
 package com.aitrainingapp.android.ui.exercise
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -320,15 +322,20 @@ fun RegisterExerciseScreen(viewModel: ExerciseViewModel) {
                     modifier = Modifier.weight(1f)
                 )
             }
-
+            val context = LocalContext.current
             Spacer(Modifier.height(8.dp))
 
             Button(onClick = {
-                viewModel.saveAll()
-                exerciseName = ""
-                weight = ""
-                reps = ""
-                rpe = ""
+                if (exerciseName.isEmpty()){
+                    Toast.makeText(context, "Należy wybrać rodzaj ćwiczenia!", Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    viewModel.saveAll()
+                    exerciseName = ""
+                    weight = ""
+                    reps = ""
+                    rpe = ""
+                }
             }) {
                 Text("💾 Zapisz wszystkie")
             }
