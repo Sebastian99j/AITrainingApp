@@ -212,6 +212,8 @@ class ExerciseViewModel(
             }
 
             _seriesList.value = emptyList()
+            loadData()
+            fetchRecommendation()
         }
     }
 
