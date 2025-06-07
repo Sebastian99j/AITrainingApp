@@ -56,7 +56,6 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation("com.squareup.sqldelight:native-driver:1.5.5")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3-native-mt")
             }
         }
 
