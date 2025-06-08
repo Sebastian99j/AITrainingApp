@@ -1,5 +1,6 @@
 import SwiftUI
 import shared
+import iosApp
 
 enum AppScreen {
     case login

@@ -1,8 +1,10 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    kotlin("plugin.serialization") version "1.9.0"
     id("com.squareup.sqldelight")
+    id("org.jetbrains.kotlin.native.cocoapods")
+    kotlin("plugin.serialization") version "1.9.23"
+    id("com.rickclephas.kmp.nativecoroutines") version "1.0.0-ALPHA-13"
 }
 
 sqldelight {
@@ -20,13 +22,25 @@ kotlin {
             }
         }
     }
-    
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach {
-        it.binaries.framework {
+
+    sourceSets.all {
+        languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+    }
+
+    targetHierarchy.default()
+
+    androidTarget()
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+
+    cocoapods {
+        summary = "Shared module for AITrainingApp"
+        homepage = "https://your-project-homepage"
+        version = "1.0.0"
+        ios.deploymentTarget = "14.1"
+        podfile = file("../iosApp/Podfile")
+        framework {
             baseName = "shared"
             isStatic = true
         }
@@ -52,26 +66,10 @@ kotlin {
             }
         }
 
-        val iosMain by creating {
-            dependsOn(commonMain)
+        val iosMain by getting {
             dependencies {
                 implementation("com.squareup.sqldelight:native-driver:1.5.5")
             }
-        }
-
-        val iosX64Main by getting {
-            dependsOn(iosMain)
-        }
-
-        val iosArm64Main by getting {
-            dependsOn(iosMain)
-        }
-
-        val iosSimulatorArm64Main by getting {
-            dependsOn(iosMain)
-        }
-        androidMain.dependencies {
-            implementation("com.squareup.sqldelight:android-driver:1.5.5")
         }
     }
 }
