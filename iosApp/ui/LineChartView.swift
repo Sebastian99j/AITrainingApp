@@ -1,16 +1,17 @@
 import SwiftUI
 import Charts
+import shared
 
 struct LineChartView: View {
-    let data: [Pair<String, Double>]
+    let data: [RegressionPoint]
 
     var body: some View {
         Chart {
             ForEach(data.indices, id: \.self) { index in
                 let item = data[index]
                 LineMark(
-                    x: .value("Data", item.first),
-                    y: .value("Ciężar", item.second)
+                    x: .value("Data", item.date),
+                    y: .value("Ciężar", item.value)
                 )
                 .foregroundStyle(Color.cyan)
                 .symbol(Circle())

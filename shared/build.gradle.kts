@@ -23,13 +23,21 @@ kotlin {
         }
     }
 
+    ios {
+        binaries {
+            framework {
+                baseName = "shared"
+                isStatic = true
+            }
+        }
+    }
+
     sourceSets.all {
         languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
     }
 
     targetHierarchy.default()
 
-    androidTarget()
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -98,4 +106,22 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+}
+
+tasks.register("assembleXCFramework", Exec::class) {
+    dependsOn(
+        "linkReleaseFrameworkIosArm64",
+        "linkReleaseFrameworkIosX64",
+        "linkReleaseFrameworkIosSimulatorArm64"
+    )
+    doLast {
+        exec {
+            commandLine("xcodebuild", "-create-xcframework",
+                "-framework", "build/bin/iosArm64/ReleaseFramework/shared.framework",
+                "-framework", "build/bin/iosX64/ReleaseFramework/shared.framework",
+                "-framework", "build/bin/iosSimulatorArm64/ReleaseFramework/shared.framework",
+                "-output", "build/XCFrameworks/shared.xcframework"
+            )
+        }
+    }
 }

@@ -1,11 +1,12 @@
 import Combine
+import shared
 
 class SharedProgressionViewModel: ObservableObject {
     private let repository: ProgressionRepository
     private let userRepo: UserLocalRepository
     private let trainingTypeRepo: TrainingTypeRepository
 
-    @Published var regressionData: [Pair<String, Double>] = []
+    @Published var regressionData: [RegressionPoint] = []
     @Published var forecastMap: [String: Double] = [:]
     @Published var exercises: [String] = []
 

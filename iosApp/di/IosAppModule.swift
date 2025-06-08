@@ -1,16 +1,18 @@
+import shared
+
 class IosAppModule {
 
     let shared: SharedModule
 
     init() {
         // Utwórz multiplatformową bazę danych
-        let databaseHelper = DatabaseHelper(driverFactory: DatabaseDriverFactory())
+        let databaseHelper = DatabaseHelperIOS(factory: DatabaseDriverFactory())
 
         // Utwórz dostęp do API
         let api = ApiConnection()
 
         // Repozytoria (implementacje z KMP)
-        let userRepo = UserRepositoryImpl(api: api)
+        let userRepo = UserRepositoryImpl(api: api, queries: <#any ProfileQueries#>)
         let localRepo = UserLocalRepositoryImpl(
             userQueries: databaseHelper.userQueries,
             profileQueries: databaseHelper.profileQueries

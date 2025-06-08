@@ -45,7 +45,7 @@ struct ProgressionAnalysisScreen: View {
                 }
 
                 // Wykres
-                if !viewModel.regressionData.isEmpty {
+                if !$viewModel.regressionData.isEmpty {
                     LineChartView(data: viewModel.regressionData)
                         .frame(height: 300)
                         .padding(.top)

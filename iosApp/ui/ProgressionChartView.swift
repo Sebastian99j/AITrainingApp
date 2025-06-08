@@ -1,4 +1,6 @@
 import Charts
+import shared
+import SwiftUI
 
 struct ProgressionChartView: View {
     let data: [(String, Double)]

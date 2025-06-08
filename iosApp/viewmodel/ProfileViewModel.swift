@@ -13,28 +13,45 @@ class ProfileViewModel: ObservableObject {
     init(profileQueries: ProfileQueries, userQueries: UserQueries) {
         self.controller = ProfileController(
             profileQueries: profileQueries,
-            userQueries: userQueries, scope: <#any Kotlinx_coroutines_coreCoroutineScope#>
+            userQueries: userQueries,
+            scope: <#any Kotlinx_coroutines_coreCoroutineScope#>
         )
 
         observeFlows()
     }
 
     private func observeFlows() {
-        controller.profiles.watch { [weak self] data in
-            self?.profiles = data as? [ProfileUiModel] ?? []
-        }.store(in: &cancellables)
+        controller.profiles
+            .asPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] data in
+                self?.profiles = data
+            }
+            .store(in: &cancellables)
 
-        controller.username.watch { [weak self] name in
-            self?.username = name ?? ""
-        }.store(in: &cancellables)
+        controller.username
+            .asPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] name in
+                self?.username = name
+            }
+            .store(in: &cancellables)
 
-        controller.aiIdentifier.watch { [weak self] id in
-            self?.aiIdentifier = id ?? ""
-        }.store(in: &cancellables)
+        controller.aiIdentifier
+            .asPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] id in
+                self?.aiIdentifier = id
+            }
+            .store(in: &cancellables)
 
-        controller.selectedProfileId.watch { [weak self] id in
-            self?.selectedProfileId = id as? Int32
-        }.store(in: &cancellables)
+        controller.selectedProfileId
+            .asPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] id in
+                self?.selectedProfileId = id
+            }
+            .store(in: &cancellables)
     }
 
     func loadData() {

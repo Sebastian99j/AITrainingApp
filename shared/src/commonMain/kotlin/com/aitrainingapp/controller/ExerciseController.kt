@@ -178,5 +178,29 @@ class ExerciseController(
             else -> "Nieznana rekomendacja: $raw"
         }
     }
+
+    val elapsedSeconds = MutableStateFlow(0)
+    val timerRunning = MutableStateFlow(false)
+
+    fun toggleTimer() {
+        timerRunning.value = !timerRunning.value
+    }
+
+    fun totalWeight(): Int {
+        return seriesList.value.sumOf { it.weight.toInt() * it.reps * it.sets }
+    }
+
+    fun totalReps(): Int {
+        return seriesList.value.sumOf { it.reps * it.sets }
+    }
+
+    fun totalSets(): Int {
+        return seriesList.value.sumOf { it.sets }
+    }
+
+    fun averageDuration(): Int {
+        return if (seriesList.value.isEmpty()) 0 else
+            seriesList.value.map { it.durationSeconds }.average().toInt()
+    }
 }
 

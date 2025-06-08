@@ -1,4 +1,5 @@
 import Combine
+import shared
 
 class ExerciseViewModelWrapper: ObservableObject {
     private let viewModel: ExerciseViewModel

@@ -16,13 +16,23 @@ enum AppScreen {
 struct ContentView: View {
     @State private var currentScreen: AppScreen = .login
 
-    let loginViewModel = SwiftLoginViewModel()
-    let trainingTypeVM = SwiftTrainingTypeViewModel()
-    let trainingHistoryVM = SwiftTrainingHistoryViewModel()
-    let profileVM = SwiftProfileViewModel()
-    let exerciseVM = SwiftExerciseViewModel()
-    let progressionVM = SwiftProgressionViewModel()
-    let settingsVM = SwiftUserSettingsViewModel()
+    let loginViewModel = LoginViewModel()
+    let trainingTypeVM = TrainingTypeViewModel()
+    let trainingHistoryVM = TrainingHistoryViewModel()
+    let exerciseVM = ExerciseViewModel()
+    let progressionVM = ProgressionViewModel()
+    let settingsVM = UserSettingsViewModel()
+    
+    let profileVM: ProfileViewModel
+
+    init() {
+        let dbHelper = DatabaseHelper(factory: DatabaseDriverFactory())
+
+        self.profileVM = ProfileViewModel(
+            profileQueries: dbHelper.profileQueries,
+            userQueries: dbHelper.userQueries
+        )
+    }
 
     var body: some View {
         NavigationStack {
@@ -30,11 +40,8 @@ struct ContentView: View {
             case .login:
                 LoginScreen(
                     viewModel: loginViewModel,
-                    onLoginSuccess: {
-                        currentScreen = .dashboard
-                    }
+                    onLoginSuccess: { currentScreen = .dashboard }
                 )
-
             case .dashboard:
                 DashboardScreen(
                     onNavigateToTrainingTypes: { currentScreen = .trainingTypes },
@@ -44,22 +51,16 @@ struct ContentView: View {
                     onNavigateToProgressionAnalysis: { currentScreen = .analysis },
                     onNavigateToRegisterExercise: { currentScreen = .registerExercise }
                 )
-
             case .trainingTypes:
                 TrainingTypeScreen(viewModel: trainingTypeVM)
-
             case .trainingHistory:
                 TrainingHistoryScreen(viewModel: trainingHistoryVM)
-
             case .profile:
                 ProfileScreen(viewModel: profileVM)
-
             case .registerExercise:
                 RegisterExerciseScreen(viewModel: exerciseVM)
-
             case .analysis:
                 ProgressionAnalysisScreen(viewModel: progressionVM)
-
             case .settings:
                 SettingsScreen(
                     currentUsername: settingsVM.username,
@@ -72,3 +73,4 @@ struct ContentView: View {
         }
     }
 }
+
