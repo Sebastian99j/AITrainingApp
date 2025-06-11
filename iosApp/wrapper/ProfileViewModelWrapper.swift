@@ -1,6 +1,7 @@
 import Combine
+import shared
 
-struct ProfileEntity: Identifiable, Equatable {
+struct ProfileEntity: Identifiable, Equatable, Hashable {
     let id: Int32
     let name: String
     let weightChance: Float
@@ -10,6 +11,7 @@ struct ProfileEntity: Identifiable, Equatable {
 
 class ProfileViewModelWrapper: ObservableObject {
     private let viewModel: ProfileViewModel
+    private var cancellables = Set<AnyCancellable>()
 
     @Published var profiles: [ProfileEntity] = []
     @Published var username: String = ""
@@ -17,14 +19,17 @@ class ProfileViewModelWrapper: ObservableObject {
     @Published var selectedProfileId: Int32?
 
     init(profileQueries: ProfileQueries, userQueries: UserQueries) {
-        self.viewModel = ProfileViewModel(profileQueries: profileQueries, userQueries: userQueries)
+        self.viewModel = ProfileViewModel(
+            profileQueries: profileQueries,
+            userQueries: userQueries
+        )
         observe()
     }
 
     private func observe() {
-        viewModel.profiles.watch { [weak self] list in
-            guard let list = list as? [Shared.ProfileEntity] else { return }
-            DispatchQueue.main.async {
+        viewModel.$profiles
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] list in
                 self?.profiles = list.map {
                     ProfileEntity(
                         id: Int32($0.id),
@@ -35,25 +40,22 @@ class ProfileViewModelWrapper: ObservableObject {
                     )
                 }
             }
-        }
+            .store(in: &cancellables)
 
-        viewModel.username.watch { [weak self] value in
-            DispatchQueue.main.async {
-                self?.username = value ?? ""
-            }
-        }
+        viewModel.$username
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.username = $0 }
+            .store(in: &cancellables)
 
-        viewModel.aiIdentifier.watch { [weak self] value in
-            DispatchQueue.main.async {
-                self?.aiIdentifier = value ?? ""
-            }
-        }
+        viewModel.$aiIdentifier
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.aiIdentifier = $0 }
+            .store(in: &cancellables)
 
-        viewModel.selectedProfileId.watch { [weak self] value in
-            DispatchQueue.main.async {
-                self?.selectedProfileId = value?.int32Value
-            }
-        }
+        viewModel.$selectedProfileId
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in self?.selectedProfileId = $0 }
+            .store(in: &cancellables)
     }
 
     func loadData() {
@@ -61,6 +63,6 @@ class ProfileViewModelWrapper: ObservableObject {
     }
 
     func setProfile(profileId: Int32) {
-        viewModel.setProfileForUser(profileId: Int(profileId))
+        viewModel.setProfile(profileId: profileId)
     }
 }

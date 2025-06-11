@@ -20,7 +20,7 @@ struct SettingsScreen: View {
                     .textFieldStyle(.roundedBorder)
 
                 Button("Zapisz nazwę") {
-                    viewModel.updateUsername(newName: username)
+                    viewModel.updateUsername(username)
                 }
                 .frame(maxWidth: .infinity)
                 .padding()

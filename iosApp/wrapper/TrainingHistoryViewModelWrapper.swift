@@ -1,4 +1,5 @@
 import Combine
+import shared
 
 class TrainingHistoryViewModelWrapper: ObservableObject {
     private let viewModel: TrainingHistoryViewModel
@@ -6,20 +7,21 @@ class TrainingHistoryViewModelWrapper: ObservableObject {
     @Published var history: [TrainingSeries] = []
 
     init(repository: TrainingHistoryRepository, userRepo: UserLocalRepository) {
-        self.viewModel = TrainingHistoryViewModel(repository: repository, userRepository: userRepo)
+        self.viewModel = TrainingHistoryViewModel(
+            repository: repository,
+            userRepository: userRepo
+        )
+
         observe()
     }
 
     private func observe() {
-        viewModel.history.watch { [weak self] items in
-            guard let list = items as? [TrainingSeries] else { return }
-            DispatchQueue.main.async {
-                self?.history = list
-            }
-        }
+        viewModel.$history
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$history)
     }
 
     func load() {
-        viewModel.loadHistory()
+        viewModel.load()
     }
 }

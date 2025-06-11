@@ -1,8 +1,11 @@
 import Combine
 import AVFoundation
+import MediaPlayer // <- to jest potrzebne do MPVolumeView
+import shared
 
 class UserSettingsViewModelWrapper: ObservableObject {
     private let viewModel: UserSettingsViewModel
+    private var cancellables = Set<AnyCancellable>()
 
     @Published var username: String = ""
     @Published var darkMode: Bool = false
@@ -14,31 +17,34 @@ class UserSettingsViewModelWrapper: ObservableObject {
     }
 
     private func observe() {
-        viewModel.username.watch { [weak self] name in
-            DispatchQueue.main.async {
-                self?.username = name ?? ""
+        viewModel.$username
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] name in
+                self?.username = name
             }
-        }
+            .store(in: &cancellables)
 
-        viewModel.darkMode.watch { [weak self] dark in
-            DispatchQueue.main.async {
-                self?.darkMode = dark as? Bool ?? false
+        viewModel.$darkMode
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] dark in
+                self?.darkMode = dark
             }
-        }
+            .store(in: &cancellables)
 
-        viewModel.notificationOn.watch { [weak self] enabled in
-            DispatchQueue.main.async {
-                self?.notificationsOn = enabled as? Bool ?? false
+        viewModel.$notificationOn
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] enabled in
+                self?.notificationsOn = enabled
             }
-        }
+            .store(in: &cancellables)
     }
 
-    func updateUsername(newName: String) {
-        viewModel.updateUsername(newName: newName)
+    func updateUsername(_ newName: String) {
+        viewModel.updateUsername(newName)
     }
 
     func toggleNotification(enabled: Bool) {
-        viewModel.toggleNotification(context: nil, enabled: enabled)
+        viewModel.toggleNotification(enabled)
     }
 
     func setVolume(volume: Float) {

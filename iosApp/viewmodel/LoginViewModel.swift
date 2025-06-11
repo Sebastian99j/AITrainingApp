@@ -1,35 +1,40 @@
 import Combine
+import shared
 
 class LoginViewModel: ObservableObject {
-    let loginViewModel: SharedLoginViewModel
-    @Published var state: LoginState = LoginState.companion.Empty
+    let kmpViewModel: shared.LoginViewModel
+    @Published var state: LoginState = LoginState(isLoading: false, success: false, error: nil)
+    private var job: Kotlinx_coroutines_coreJob?
 
     init(
         loginUseCase: LoginUseCase,
         registerUseCase: RegisterUseCase,
         fetchUserUseCase: FetchAndStoreUserUseCase
     ) {
-        loginViewModel = SharedLoginViewModel(
+        self.kmpViewModel = shared.LoginViewModel(
             loginUseCase: loginUseCase,
             registerUseCase: registerUseCase,
-            coroutineScope: MainScope(),
+            coroutineScope: IOSScope.shared.scope,
             onUserRegistered: { user in
                 Task {
-                    _ = try? await fetchUserUseCase.execute(username: user.username)
+                    _ = try? await fetchUserUseCase.invoke(username: user.username)
                 }
             }
         )
 
-        loginViewModel.state.watch { [weak self] state in
-            if let s = state as? LoginState {
-                DispatchQueue.main.async {
-                    self?.state = s
-                }
+        job = kmpViewModel.observeState { [weak self] value in
+            let s = value // value już jest typu LoginState
+            DispatchQueue.main.async {
+                self?.state = s
             }
         }
     }
 
     func onEvent(event: LoginEvent) {
-        loginViewModel.onEvent(event: event)
+        kmpViewModel.onEvent(event: event)
+    }
+
+    deinit {
+        job?.cancel(cause: nil)
     }
 }

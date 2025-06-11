@@ -8,50 +8,42 @@ class ProfileViewModel: ObservableObject {
     @Published var profiles: [ProfileUiModel] = []
     @Published var username: String = ""
     @Published var aiIdentifier: String = ""
-    @Published var selectedProfileId: Int32? = nil
+    @Published var selectedProfileId: Int32?
 
     init(profileQueries: ProfileQueries, userQueries: UserQueries) {
         self.controller = ProfileController(
             profileQueries: profileQueries,
             userQueries: userQueries,
-            scope: <#any Kotlinx_coroutines_coreCoroutineScope#>
+            scope: IOSScope.shared.scope
         )
 
-        observeFlows()
-    }
+        // ✅ Watch profiles (as function)
+        FlowWatcher.shared.watch(flow: controller.profiles()) { [weak self] value in
+            self?.profiles = value as? [ProfileUiModel] ?? []
+        }
 
-    private func observeFlows() {
-        controller.profiles
-            .asPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] data in
-                self?.profiles = data
-            }
-            .store(in: &cancellables)
+        // ✅ Watch username
+        FlowWatcher.shared.watch(flow: controller.username()) { [weak self] value in
+            self?.username = value as? String ?? ""
+        }
 
-        controller.username
-            .asPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] name in
-                self?.username = name
-            }
-            .store(in: &cancellables)
+        // ✅ Watch aiIdentifier
+        FlowWatcher.shared.watch(flow: controller.aiIdentifier()) { [weak self] value in
+            self?.aiIdentifier = value as? String ?? ""
+        }
 
-        controller.aiIdentifier
-            .asPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] id in
-                self?.aiIdentifier = id
+        // ✅ Watch selectedProfileId
+        FlowWatcher.shared.watch(flow: controller.selectedProfileId()) { [weak self] value in
+            if let intVal = value as? KotlinInt {
+                self?.selectedProfileId = intVal.int32Value
+            } else if let intVal = value as? Int32 {
+                self?.selectedProfileId = intVal
+            } else if let intVal = value as? Int {
+                self?.selectedProfileId = Int32(intVal)
+            } else {
+                self?.selectedProfileId = nil
             }
-            .store(in: &cancellables)
-
-        controller.selectedProfileId
-            .asPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] id in
-                self?.selectedProfileId = id
-            }
-            .store(in: &cancellables)
+        }
     }
 
     func loadData() {
@@ -59,6 +51,7 @@ class ProfileViewModel: ObservableObject {
     }
 
     func setProfile(profileId: Int32) {
-        controller.setProfileForUser(profileId: profileId)
+        // ✅ Kotlin Multiplatform expects KotlinInt not Swift Int
+        controller.setProfileForUser(profileId: Int32(KotlinInt(int: profileId)))
     }
 }

@@ -11,13 +11,12 @@ class UserSettingsController(
     private val scope: CoroutineScope
 ) {
     private val _username = MutableStateFlow("")
-    val username: StateFlow<String> = _username
-
     private val _darkMode = MutableStateFlow(true)
-    val darkMode: StateFlow<Boolean> = _darkMode
-
     private val _notificationOn = MutableStateFlow(false)
-    val notificationOn: StateFlow<Boolean> = _notificationOn
+
+    fun username(): StateFlow<String> = _username
+    fun darkMode(): StateFlow<Boolean> = _darkMode
+    fun notificationOn(): StateFlow<Boolean> = _notificationOn
 
     init {
         loadUserData()

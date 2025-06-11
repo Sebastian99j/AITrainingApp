@@ -2,13 +2,17 @@ import SwiftUI
 import Charts
 import shared
 
+struct RegressionPoint: Hashable {
+    let date: String
+    let value: Float
+}
+
 struct LineChartView: View {
     let data: [RegressionPoint]
 
     var body: some View {
         Chart {
-            ForEach(data.indices, id: \.self) { index in
-                let item = data[index]
+            ForEach(data, id: \.self) { item in
                 LineMark(
                     x: .value("Data", item.date),
                     y: .value("Ciężar", item.value)

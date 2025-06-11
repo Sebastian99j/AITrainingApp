@@ -19,87 +19,80 @@ class ExerciseViewModelWrapper: ObservableObject {
         historyRepo: TrainingHistoryRepository,
         qLearningRepo: QLearningRepository
     ) {
-        viewModel = ExerciseViewModel(
+        self.viewModel = ExerciseViewModel(
             repository: repository,
-            localUserRepository: localRepo,
-            trainingTypeRepository: typeRepo,
-            trainingHistoryRepository: historyRepo,
-            qLearningRepository: qLearningRepo
+            userRepo: localRepo,
+            typeRepo: typeRepo,
+            historyRepo: historyRepo,
+            qLearningRepo: qLearningRepo,
+            coroutineScope: IOSScope.shared.scope // <- dodaj to jeśli wymagane
         )
-        observe()
+        refresh()
     }
 
-    private func observe() {
-        viewModel.exercises.watch { [weak self] list in
-            self?.exercises = list as? [String] ?? []
-        }
-        viewModel.seriesList.watch { [weak self] list in
-            self?.series = list as? [ExerciseSeries] ?? []
-        }
-        viewModel.recommendation.watch { [weak self] rec in
-            self?.recommendation = rec as? String
-        }
-        viewModel.nextTrainingPlan.watch { [weak self] plan in
-            self?.plan = plan as? String
-        }
-        viewModel.feedbackSent.watch { [weak self] sent in
-            self?.feedbackSent = sent as? Bool ?? false
-        }
-        viewModel.elapsedSeconds.watch { [weak self] sec in
-            self?.elapsedSeconds = sec?.int32Value ?? 0
-        }
-        viewModel.timerRunning.watch { [weak self] state in
-            self?.timerRunning = state as? Bool ?? false
-        }
+    func refresh() {
+        self.series = viewModel.series
+        self.exercises = viewModel.exercises
+        self.recommendation = viewModel.recommendation
+        self.feedbackSent = viewModel.feedbackSent
+        self.elapsedSeconds = viewModel.elapsedSeconds
+        self.timerRunning = viewModel.timerRunning
     }
 
     func loadData() {
-        viewModel.loadData()
+        viewModel.refreshData()
+        refresh()
     }
 
     func fetchRecommendation() {
         viewModel.fetchRecommendation()
+        refresh()
     }
 
     func toggleTimer() {
         viewModel.toggleTimer()
+        refresh()
     }
 
     func setSelectedExercise(_ name: String) {
         viewModel.setSelectedExercise(name: name)
+        refresh()
     }
 
     func sendFeedback(successful: Bool) {
         viewModel.sendFeedback(successful: successful)
+        refresh()
     }
 
     func addSeries(exercise: String, weight: Float, reps: Int32, sets: Int32, rpe: Int32) {
         viewModel.addSeries(
             exercise: exercise,
             weight: weight,
-            reps: Int(reps),
-            sets: Int(sets),
-            rpe: Int(rpe)
+            reps: reps,
+            sets: sets,
+            rpe: rpe
         )
+        refresh()
     }
 
     func saveAll() {
         viewModel.saveAll()
+        refresh()
     }
 
     func totalWeight() -> Int32 {
-        Int32(viewModel.totalWeight())
+        viewModel.totalWeight()
     }
 
     func totalReps() -> Int32 {
-        Int32(viewModel.totalReps())
+        viewModel.totalReps()
     }
 
     func totalSets() -> Int32 {
-        Int32(viewModel.totalSets())
+        viewModel.totalSets()
     }
 
     func averageDuration() -> Int32 {
-        Int32(viewModel.averageDuration())
+        viewModel.averageDuration()
     }
 }

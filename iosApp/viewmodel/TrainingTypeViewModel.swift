@@ -1,20 +1,22 @@
 import Combine
+import shared
 
 class TrainingTypeViewModel: ObservableObject {
-    let controller: SharedTrainingTypeController
+    let controller: TrainingTypeController
     private var cancellables = Set<AnyCancellable>()
 
     @Published var types: [TrainingType] = []
 
-    init(repository: TrainingTypeRepository) {
-        controller = SharedTrainingTypeController(
+    init(repository: TrainingTypeRepository,
+         coroutineScope: Kotlinx_coroutines_coreCoroutineScope) {
+        controller = TrainingTypeController(
             repository: repository,
-            scope: MainScope()
+            scope: coroutineScope
         )
 
-        controller.types.watch { [weak self] list in
-            self?.types = list as? [TrainingType] ?? []
-        }.store(in: &cancellables)
+        FlowWatcher.shared.watch(flow: controller.types()) { [weak self] value in
+            self?.types = value as? [TrainingType] ?? []
+        }
     }
 
     func load() {

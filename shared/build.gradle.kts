@@ -65,6 +65,8 @@ kotlin {
                 implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
                 implementation("io.ktor:ktor-client-json:2.3.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                implementation("com.rickclephas.kmp:kmp-nativecoroutines-core:1.0.0-ALPHA-13")
             }
         }
 
@@ -77,6 +79,7 @@ kotlin {
         val iosMain by getting {
             dependencies {
                 implementation("com.squareup.sqldelight:native-driver:1.5.5")
+                implementation("io.ktor:ktor-client-darwin:2.3.7")
             }
         }
     }

@@ -1,30 +1,42 @@
-class ProgressionViewModel: ObservableObject {
-    let controller: SharedProgressionController
-    private var cancellables = Set<AnyCancellable>()
+import Combine
+import shared
 
-    @Published var regressionData: [SharedPair] = []
+class ProgressionViewModel: ObservableObject {
+    let controller: ProgressionController
+    private var jobs: [Kotlinx_coroutines_coreJob] = []
+
+    @Published var regressionData: [(String, Double)] = []
     @Published var forecastMap: [String: Double] = [:]
     @Published var exercises: [String] = []
 
-    init(repo: ProgressionRepository, userRepo: UserLocalRepository, typeRepo: TrainingTypeRepository) {
-        controller = SharedProgressionController(
+    init(repo: ProgressionRepositoryIOS, userRepo: UserLocalRepository, typeRepo: TrainingTypeRepository) {
+        controller = ProgressionController(
             repository: repo,
             userRepo: userRepo,
             trainingTypeRepo: typeRepo,
-            scope: MainScope()
+            scope: IOSScope.shared.scope
         )
 
-        controller.regressionData.watch { [weak self] list in
-            self?.regressionData = list as? [SharedPair] ?? []
-        }.store(in: &cancellables)
+        jobs.append(controller.observeRegressionData { [weak self] value in
+            guard let list = value as? [(String, Double)] else { return }
+            DispatchQueue.main.async {
+                self?.regressionData = list
+            }
+        })
 
-        controller.forecastMap.watch { [weak self] map in
-            self?.forecastMap = map as? [String: Double] ?? [:]
-        }.store(in: &cancellables)
+        jobs.append(controller.observeForecastMap { [weak self] value in
+            guard let map = value as? [String: Double] else { return }
+            DispatchQueue.main.async {
+                self?.forecastMap = map
+            }
+        })
 
-        controller.exercises.watch { [weak self] list in
-            self?.exercises = list as? [String] ?? []
-        }.store(in: &cancellables)
+        jobs.append(controller.observeExercises { [weak self] value in
+            guard let list = value as? [String] else { return }
+            DispatchQueue.main.async {
+                self?.exercises = list
+            }
+        })
     }
 
     func analyze(type: String) {

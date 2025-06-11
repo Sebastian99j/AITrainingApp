@@ -1,9 +1,11 @@
 import Combine
+import shared
 
 class LoginViewModelWrapper: ObservableObject {
     @Published var state: LoginState = LoginState(isLoading: false, success: false, error: nil)
 
     private let viewModel: LoginViewModel
+    private var cancellables = Set<AnyCancellable>()
 
     init(
         loginUseCase: LoginUseCase,
@@ -13,25 +15,19 @@ class LoginViewModelWrapper: ObservableObject {
         self.viewModel = LoginViewModel(
             loginUseCase: loginUseCase,
             registerUseCase: registerUseCase,
-            coroutineScope: nil,
-            onUserRegistered: { user in
-                Task {
-                    _ = try? await fetchAndStoreUser.invoke(username: user.username)
-                }
-            }
+            fetchUserUseCase: fetchAndStoreUser
         )
 
         observe()
     }
 
     private func observe() {
-        viewModel.state.watch { [weak self] newState in
-            if let newState = newState as? LoginState {
-                DispatchQueue.main.async {
-                    self?.state = newState
-                }
+        viewModel.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] newState in
+                self?.state = newState
             }
-        }
+            .store(in: &cancellables)
     }
 
     func login(username: String, password: String) {

@@ -6,7 +6,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.rickclephas.kmp.nativecoroutines.NativeCoroutinesState
 
 data class ProfileUiModel(
     val id: Int,
@@ -21,21 +20,17 @@ class ProfileController(
     private val userQueries: UserQueries,
     private val scope: CoroutineScope
 ) {
+
     private val _profiles = MutableStateFlow<List<ProfileUiModel>>(emptyList())
-    @NativeCoroutinesState
-    val profiles: StateFlow<List<ProfileUiModel>> = _profiles
-
     private val _username = MutableStateFlow("")
-    @NativeCoroutinesState
-    val username: StateFlow<String> = _username
-
     private val _aiIdentifier = MutableStateFlow("")
-    @NativeCoroutinesState
-    val aiIdentifier: StateFlow<String> = _aiIdentifier
-
     private val _selectedProfileId = MutableStateFlow<Int?>(null)
-    @NativeCoroutinesState
-    val selectedProfileId: StateFlow<Int?> = _selectedProfileId
+
+    // ✅ ZAMIANA val na fun — ważne dla iOS interop
+    fun profiles(): StateFlow<List<ProfileUiModel>> = _profiles
+    fun username(): StateFlow<String> = _username
+    fun aiIdentifier(): StateFlow<String> = _aiIdentifier
+    fun selectedProfileId(): StateFlow<Int?> = _selectedProfileId
 
     fun loadData() {
         scope.launch {

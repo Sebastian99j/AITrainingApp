@@ -4,6 +4,8 @@ import com.aitrainingapp.domain.model.TrainingSeries
 import com.aitrainingapp.domain.repository.TrainingHistoryRepository
 import com.aitrainingapp.domain.repository.UserLocalRepository
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -23,6 +25,15 @@ class TrainingHistoryController(
                 emptyList()
             } else {
                 repository.getTrainingHistory(id)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeHistory(callback: (List<TrainingSeries>) -> Unit): Job {
+        return scope.launch {
+            history.collect {
+                callback(it)
             }
         }
     }

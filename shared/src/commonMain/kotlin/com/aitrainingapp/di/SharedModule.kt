@@ -3,6 +3,7 @@ package com.aitrainingapp.di
 import com.aitrainingapp.domain.repository.ExerciseRepository
 import com.aitrainingapp.domain.repository.ProfileRepository
 import com.aitrainingapp.domain.repository.ProgressionRepository
+import com.aitrainingapp.domain.repository.ProgressionRepositoryIOS
 import com.aitrainingapp.domain.repository.QLearningRepository
 import com.aitrainingapp.domain.repository.TrainingHistoryRepository
 import com.aitrainingapp.domain.repository.TrainingTypeRepository
@@ -17,7 +18,8 @@ class SharedModule(
     private val localUserRepository: UserLocalRepository,
     private val trainingTypeRepository: TrainingTypeRepository,
     private val trainingHistoryRepository: TrainingHistoryRepository,
-    private val progressionRepository: ProgressionRepository,
+    private val progressionRepository: ProgressionRepository?,
+    private val progressionRepositoryIOS: ProgressionRepositoryIOS?,
     private val exerciseRepository: ExerciseRepository,
     private val profileRepository: ProfileRepository,
     private val qLearningRepository: QLearningRepository
@@ -30,6 +32,7 @@ class SharedModule(
     fun provideTrainingHistoryRepository() = trainingHistoryRepository
     fun provideLocalUserRepository() = localUserRepository
     fun provideProgressionRepository() = progressionRepository
+    fun provideProgressionRepositoryIOS() = progressionRepositoryIOS
     fun provideExerciseRepository() = exerciseRepository
     fun provideQLearningRepository() = qLearningRepository
 }

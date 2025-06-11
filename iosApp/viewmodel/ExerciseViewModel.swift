@@ -1,13 +1,13 @@
 import Combine
 import shared
+import Foundation
 
 class ExerciseViewModel: ObservableObject {
     let controller: ExerciseController
-    private var cancellables = Set<AnyCancellable>()
 
     @Published var series: [ExerciseSeries] = []
     @Published var exercises: [String] = []
-    @Published var recommendation: String? = nil
+    @Published var recommendation: String?
     @Published var feedbackSent: Bool = false
 
     init(
@@ -18,7 +18,7 @@ class ExerciseViewModel: ObservableObject {
         qLearningRepo: QLearningRepository,
         coroutineScope: Kotlinx_coroutines_coreCoroutineScope
     ) {
-        controller = ExerciseController(
+        self.controller = ExerciseController(
             repository: repository,
             userRepo: userRepo,
             typeRepo: typeRepo,
@@ -27,37 +27,25 @@ class ExerciseViewModel: ObservableObject {
             coroutineScope: coroutineScope
         )
 
-        controller.seriesList.watch { [weak self] (items: Any?) in
-            self?.series = items as? [ExerciseSeries] ?? []
-        }.store(in: &cancellables)
-
-        controller.exercises.watch { [weak self] (list: Any?) in
-            self?.exercises = list as? [String] ?? []
-        }.store(in: &cancellables)
-
-        controller.recommendation.watch { [weak self] (value: Any?) in
-            self?.recommendation = value as? String
-        }.store(in: &cancellables)
-
-        controller.feedbackSent.watch { [weak self] (value: Any?) in
-            self?.feedbackSent = value as? Bool ?? false
-        }.store(in: &cancellables)
+        refreshData()
     }
 
-    // Computed Swift-friendly properties
-    var nextTrainingPlan: String? {
-        controller.nextTrainingPlan.value as? String
+    func refreshData() {
+        series = controller.getSeriesList()
+        exercises = controller.getExercises()
+        recommendation = controller.getRecommendation()
+        feedbackSent = controller.isFeedbackSent()
     }
 
     var elapsedSeconds: Int32 {
-        (controller.elapsedSeconds.value as? KotlinInt)?.int32Value ?? 0
+        Int32(controller.getElapsedSeconds())
     }
 
     var timerRunning: Bool {
-        (controller.timerRunning.value as? Bool) ?? false
+        controller.isTimerRunning()
     }
 
-    // Public API methods
+    // MARK: - Public API
     func toggleTimer() {
         controller.toggleTimer()
     }
@@ -66,7 +54,7 @@ class ExerciseViewModel: ObservableObject {
         controller.setSelectedExercise(name: name)
     }
 
-    func addSeries(exercise: String, weight: Float, reps: Int, sets: Int, rpe: Int) {
+    func addSeries(exercise: String, weight: Float, reps: Int32, sets: Int32, rpe: Int32) {
         controller.addSeries(
             exercise: exercise,
             weight: weight,
@@ -75,6 +63,7 @@ class ExerciseViewModel: ObservableObject {
             rpe: rpe,
             duration: elapsedSeconds
         )
+        refreshData() // aktualizacja po dodaniu
     }
 
     func totalWeight() -> Int32 {
@@ -95,17 +84,16 @@ class ExerciseViewModel: ObservableObject {
 
     func fetchRecommendation() {
         controller.fetchRecommendation()
+        refreshData()
     }
 
     func sendFeedback(successful: Bool) {
         controller.sendFeedback(successful: successful)
+        refreshData()
     }
 
     func saveAll() {
         controller.saveAll()
-    }
-
-    func loadData() {
-        controller.loadExercises()
+        refreshData()
     }
 }

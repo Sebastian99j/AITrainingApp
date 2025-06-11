@@ -14,6 +14,8 @@ class TrainingTypeController(
     private val _types = MutableStateFlow<List<TrainingType>>(emptyList())
     val types: StateFlow<List<TrainingType>> = _types
 
+    fun types(): StateFlow<List<TrainingType>> = _types
+
     fun loadTypes() {
         scope.launch {
             _types.value = repository.getAll()

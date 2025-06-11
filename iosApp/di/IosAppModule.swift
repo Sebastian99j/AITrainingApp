@@ -9,20 +9,25 @@ class IosAppModule {
         let databaseHelper = DatabaseHelperIOS(factory: DatabaseDriverFactory())
 
         // Utwórz dostęp do API
-        let api = ApiConnection()
+        var api: ApiConnection? = nil
+        if let api = ApiConnection.companion.create() {
+            // używaj api
+        } else {
+            print("❌ Nie udało się utworzyć ApiConnection")
+        }
 
         // Repozytoria (implementacje z KMP)
-        let userRepo = UserRepositoryImpl(api: api, queries: <#any ProfileQueries#>)
+        let userRepo = UserRepositoryImpl(api: api!, queries: databaseHelper.profileQueries)
         let localRepo = UserLocalRepositoryImpl(
             userQueries: databaseHelper.userQueries,
             profileQueries: databaseHelper.profileQueries
         )
-        let trainingTypeRepo = TrainingTypeRepositoryImpl(api: api)
-        let historyRepo = TrainingHistoryRepositoryImpl(api: api)
-        let progressionRepo = ProgressionRepositoryImpl(api: api)
-        let exerciseRepo = ExerciseRepositoryImpl(api: api, userRepo: localRepo)
-        let profileRepo = ProfileRepositoryImpl(profileQueries: databaseHelper.profileQueries)
-        let qLearningRepo = QLearningRepositoryImpl(api: api)
+        let trainingTypeRepo = TrainingTypeRepositoryImpl(api: api!)
+        let historyRepo = TrainingHistoryRepositoryImpl(api: api!)
+        let progressionRepo = ProgressionRepositoryIOSImpl(api: api!)
+        let exerciseRepo = ExerciseRepositoryImpl(api: api!, userRepo: localRepo)
+        let profileRepo = ProfileRepositoryImpl(queries: databaseHelper.profileQueries)
+        let qLearningRepo = QLearningRepositoryImpl(api: api!)
 
         // Wstrzyknij do SharedModule
         self.shared = SharedModule(
@@ -30,7 +35,8 @@ class IosAppModule {
             localUserRepository: localRepo,
             trainingTypeRepository: trainingTypeRepo,
             trainingHistoryRepository: historyRepo,
-            progressionRepository: progressionRepo,
+            progressionRepository: nil,
+            progressionRepositoryIOS: progressionRepo,
             exerciseRepository: exerciseRepo,
             profileRepository: profileRepo,
             qLearningRepository: qLearningRepo

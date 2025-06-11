@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import com.aitrainingapp.util.Result
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 
 class LoginViewModel(
     private val loginUseCase: LoginUseCase,
@@ -18,6 +20,15 @@ class LoginViewModel(
 ) {
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeState(callback: (LoginState) -> Unit): Job {
+        return coroutineScope.launch {
+            state.collect {
+                callback(it)
+            }
+        }
+    }
 
     fun onEvent(event: LoginEvent) {
         when (event) {

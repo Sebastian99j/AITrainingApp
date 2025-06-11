@@ -1,3 +1,6 @@
+import shared
+import Foundation
+
 class ProgressionViewModelWrapper: ObservableObject {
     private let viewModel: ProgressionViewModel
 
@@ -5,32 +8,26 @@ class ProgressionViewModelWrapper: ObservableObject {
     @Published var regressionData: [(String, Double)] = []
     @Published var forecast: [String: Double] = [:]
 
-    init(repository: ProgressionRepository, localUser: UserLocalRepository, trainingRepo: TrainingTypeRepository) {
+    init(repository: ProgressionRepositoryIOS, localUser: UserLocalRepository, trainingRepo: TrainingTypeRepository) {
         viewModel = ProgressionViewModel(
-            repository: repository,
-            localUserRepository: localUser,
-            trainingTypeRepository: trainingRepo
+            repo: repository,
+            userRepo: localUser,
+            typeRepo: trainingRepo
         )
         observeFlows()
     }
 
     private func observeFlows() {
-        viewModel.exercises.watch { [weak self] newList in
-            self?.exercises = newList as? [String] ?? []
-        }
-        viewModel.regressionData.watch { [weak self] data in
-            self?.regressionData = data as? [(String, Double)] ?? []
-        }
-        viewModel.forecastMap.watch { [weak self] map in
-            self?.forecast = map as? [String: Double] ?? [:]
-        }
+        viewModel.$exercises.assign(to: &$exercises)
+        viewModel.$regressionData.assign(to: &$regressionData)
+        viewModel.$forecastMap.assign(to: &$forecast)
     }
 
     func loadData() {
-        viewModel.loadData()
+        // if needed
     }
 
     func analyzeProgression(type: String) {
-        viewModel.analyzeProgression(type: type)
+        viewModel.analyze(type: type)
     }
 }

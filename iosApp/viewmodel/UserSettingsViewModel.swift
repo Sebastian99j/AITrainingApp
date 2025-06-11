@@ -1,7 +1,8 @@
 import Combine
+import shared
 
 class UserSettingsViewModel: ObservableObject {
-    let controller: SharedUserSettingsController
+    let controller: UserSettingsController
     private var cancellables = Set<AnyCancellable>()
 
     @Published var username: String = ""
@@ -9,19 +10,20 @@ class UserSettingsViewModel: ObservableObject {
     @Published var notificationOn: Bool = false
 
     init(userQueries: UserQueries) {
-        controller = SharedUserSettingsController(userQueries: userQueries, scope: MainScope())
+        controller = UserSettingsController(userQueries: userQueries, scope: IOSScope.shared.scope)
 
-        controller.username.watch { [weak self] name in
-            self?.username = name ?? ""
-        }.store(in: &cancellables)
+        // ✅ ZAMIANA .username → .username()
+        FlowWatcher.shared.watch(flow: controller.username()) { [weak self] value in
+            self?.username = value as? String ?? ""
+        }
 
-        controller.darkMode.watch { [weak self] mode in
-            self?.darkMode = mode ?? true
-        }.store(in: &cancellables)
+        FlowWatcher.shared.watch(flow: controller.darkMode()) { [weak self] value in
+            self?.darkMode = value as? Bool ?? true
+        }
 
-        controller.notificationOn.watch { [weak self] enabled in
-            self?.notificationOn = enabled ?? false
-        }.store(in: &cancellables)
+        FlowWatcher.shared.watch(flow: controller.notificationOn()) { [weak self] value in
+            self?.notificationOn = value as? Bool ?? false
+        }
     }
 
     func toggleNotification(_ value: Bool) {

@@ -3,14 +3,11 @@ package com.aitrainingapp.controller
 import com.aitrainingapp.data.remote.model.QLearningFeedbackDto
 import com.aitrainingapp.domain.model.ExerciseSeries
 import com.aitrainingapp.domain.model.Profile
-import com.aitrainingapp.domain.repository.ExerciseRepository
-import com.aitrainingapp.domain.repository.QLearningRepository
-import com.aitrainingapp.domain.repository.TrainingHistoryRepository
-import com.aitrainingapp.domain.repository.TrainingTypeRepository
-import com.aitrainingapp.domain.repository.UserLocalRepository
-import kotlinx.coroutines.CoroutineScope
+import com.aitrainingapp.domain.repository.*
+import com.rickclephas.kmp.nativecoroutines.NativeCoroutinesState
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -21,21 +18,41 @@ class ExerciseController(
     private val typeRepo: TrainingTypeRepository,
     private val historyRepo: TrainingHistoryRepository,
     private val qLearningRepo: QLearningRepository,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope = MainScope()
 ) {
+    // Backing properties
+    private val _seriesList = MutableStateFlow<List<ExerciseSeries>>(emptyList())
+    private val _exercises = MutableStateFlow<List<String>>(emptyList())
+    private val _recommendation = MutableStateFlow<String?>(null)
+    private val _nextTrainingPlan = MutableStateFlow<String?>(null)
+    private val _feedbackSent = MutableStateFlow(false)
+    private val _selectedExercise = MutableStateFlow<String?>(null)
+    private val _elapsedSeconds = MutableStateFlow(0)
+    private val _timerRunning = MutableStateFlow(false)
 
-    val seriesList = MutableStateFlow<List<ExerciseSeries>>(emptyList())
-    val exercises = MutableStateFlow<List<String>>(emptyList())
-    val recommendation = MutableStateFlow<String?>(null)
-    val nextTrainingPlan = MutableStateFlow<String?>(null)
-    val feedbackSent = MutableStateFlow(false)
-    val selectedExercise = MutableStateFlow<String?>(null)
+    // Exposed as read-only StateFlows with annotation
+    @NativeCoroutinesState val seriesList: StateFlow<List<ExerciseSeries>> get() = _seriesList
+    @NativeCoroutinesState val exercises: StateFlow<List<String>> get() = _exercises
+    @NativeCoroutinesState val recommendation: StateFlow<String?> get() = _recommendation
+    @NativeCoroutinesState val nextTrainingPlan: StateFlow<String?> get() = _nextTrainingPlan
+    @NativeCoroutinesState val feedbackSent: StateFlow<Boolean> get() = _feedbackSent
+    @NativeCoroutinesState val selectedExercise: StateFlow<String?> get() = _selectedExercise
+    @NativeCoroutinesState val elapsedSeconds: StateFlow<Int> get() = _elapsedSeconds
+    @NativeCoroutinesState val timerRunning: StateFlow<Boolean> get() = _timerRunning
+
+    fun getSeriesList(): List<ExerciseSeries> = _seriesList.value
+    fun getExercises(): List<String> = _exercises.value
+    fun getRecommendation(): String? = _recommendation.value
+    fun isFeedbackSent(): Boolean = _feedbackSent.value
+    fun isTimerRunning(): Boolean = _timerRunning.value
+    fun getElapsedSeconds(): Int = _elapsedSeconds.value
+    fun getSelectedExercise(): String? = _selectedExercise.value
 
     private var lastRawRecommendation: String? = null
     private var lastDuration: Int = 0
 
     fun setSelectedExercise(name: String) {
-        selectedExercise.value = name
+        _selectedExercise.value = name
     }
 
     fun addSeries(
@@ -48,7 +65,6 @@ class ExerciseController(
     ) {
         lastDuration = duration
         val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
-
         val new = ExerciseSeries(
             weight = weight,
             reps = reps,
@@ -58,15 +74,13 @@ class ExerciseController(
             date = now,
             exercise = exercise
         )
-
-        seriesList.value = seriesList.value + new
+        _seriesList.value = _seriesList.value + new
     }
 
     fun saveAll() {
         coroutineScope.launch {
             val userId = userRepo.getUserId() ?: return@launch
-
-            val grouped = seriesList.value
+            val grouped = _seriesList.value
                 .groupBy { it.weight }
                 .map { (weight, group) ->
                     val avgReps = group.map { it.reps }.average().toInt()
@@ -88,11 +102,8 @@ class ExerciseController(
                     )
                 }
 
-            grouped.forEach { series ->
-                repository.saveSeries(series)
-            }
-
-            seriesList.value = emptyList()
+            grouped.forEach { repository.saveSeries(it) }
+            _seriesList.value = emptyList()
         }
     }
 
@@ -100,20 +111,19 @@ class ExerciseController(
         coroutineScope.launch {
             val userId = userRepo.getUserId() ?: return@launch
             val profile = userRepo.getUserProfile()
-
             val raw = try {
                 repository.getQLearningRecommendation(userId)
             } catch (e: Exception) {
-                recommendation.value = "Błąd: ${e.message}"
+                _recommendation.value = "Błąd: ${e.message}"
                 return@launch
             }
 
             lastRawRecommendation = raw
-            recommendation.value = mapRecommendation(raw, profile)
+            _recommendation.value = mapRecommendation(raw, profile)
 
             val lastTraining = historyRepo.getTrainingHistory(userId).lastOrNull()
             if (lastTraining == null || profile == null) {
-                nextTrainingPlan.value = "Brak danych do zaplanowania treningu (nie ustawiono profilu)"
+                _nextTrainingPlan.value = "Brak danych do zaplanowania treningu (nie ustawiono profilu)"
                 return@launch
             }
 
@@ -127,7 +137,7 @@ class ExerciseController(
                 else -> lastTraining
             }
 
-            nextTrainingPlan.value = """
+            _nextTrainingPlan.value = """
                 📝 Kolejny trening:
                 • Ciężar: ${adjusted.weight} kg
                 • Powtórzenia: ${adjusted.reps}
@@ -138,16 +148,15 @@ class ExerciseController(
     }
 
     fun sendFeedback(successful: Boolean) {
-        if (feedbackSent.value) return
+        if (_feedbackSent.value) return
 
         coroutineScope.launch {
             val user = userRepo.getUserById() ?: return@launch
-            val history = historyRepo.getTrainingHistory(user.id)
-            val last = history.lastOrNull() ?: return@launch
+            val last = historyRepo.getTrainingHistory(user.id).lastOrNull() ?: return@launch
 
             val feedback = QLearningFeedbackDto(
                 user_id = user.id,
-                type = selectedExercise.value ?: "unknown",
+                type = _selectedExercise.value ?: "unknown",
                 action = lastRawRecommendation ?: "unknown",
                 successful = successful,
                 weight = last.weight,
@@ -158,9 +167,7 @@ class ExerciseController(
             )
 
             val result = qLearningRepo.sendFeedback(feedback)
-            if (result) {
-                feedbackSent.value = true
-            }
+            if (result) _feedbackSent.value = true
         }
     }
 
@@ -179,28 +186,13 @@ class ExerciseController(
         }
     }
 
-    val elapsedSeconds = MutableStateFlow(0)
-    val timerRunning = MutableStateFlow(false)
-
     fun toggleTimer() {
-        timerRunning.value = !timerRunning.value
+        _timerRunning.value = !_timerRunning.value
     }
 
-    fun totalWeight(): Int {
-        return seriesList.value.sumOf { it.weight.toInt() * it.reps * it.sets }
-    }
-
-    fun totalReps(): Int {
-        return seriesList.value.sumOf { it.reps * it.sets }
-    }
-
-    fun totalSets(): Int {
-        return seriesList.value.sumOf { it.sets }
-    }
-
-    fun averageDuration(): Int {
-        return if (seriesList.value.isEmpty()) 0 else
-            seriesList.value.map { it.durationSeconds }.average().toInt()
-    }
+    fun totalWeight(): Int = _seriesList.value.sumOf { it.weight.toInt() * it.reps * it.sets }
+    fun totalReps(): Int = _seriesList.value.sumOf { it.reps * it.sets }
+    fun totalSets(): Int = _seriesList.value.sumOf { it.sets }
+    fun averageDuration(): Int =
+        if (_seriesList.value.isEmpty()) 0 else _seriesList.value.map { it.durationSeconds }.average().toInt()
 }
-
